@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ذكرياتنا</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa+Ink:wght@400;700&family=Marhey:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="ambient-glow glow-one"></div>
+    <div class="ambient-glow glow-two"></div>
+    <header class="topbar">
+      <a class="brand" href="#">هاجر <span>♥</span> مصطفى</a>
+      <div class="header-actions">
+        <button class="light-switch" id="lightSwitch" type="button" aria-label="شغّل الأنوار" aria-pressed="false">
+          <span class="switch-track"><span class="switch-dot"></span></span>
+          <span class="switch-label">الأنوار</span>
+        </button>
+        <button class="login-button" id="loginButton" type="button">دخول</button>
+        <button class="messages-button" id="messagesButton" type="button" hidden>رسايلنا <span id="headerUnread">0</span></button>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <p class="eyebrow">كل لحظة ليها مكان</p>
+        <h1>أسعد <em>لحظاتي</em></h1>
+        <p>الصور دي بتجمع كل مرة كنت فيها مبسوط عشان كنتي فيها.</p>
+        <div class="love-counter" aria-label="عداد الأيام من أول يوم شوفتك فيه">
+          <span class="counter-heart">♥</span>
+          <span>عدّى <b id="daysTogether">0</b> <i id="daysWord">يوم</i> من أول مرة شوفتك فيها</span>
+        </div>
+      </section>
+
+      <section class="memory-wall" id="memoryWall" aria-live="polite"></section>
+      <p class="empty-state" id="emptyState" hidden>لسه مفيش ذكريات هنا… أول صورة هتخلي الحيطة تحكي حكايتنا ✨</p>
+    </main>
+
+    <button class="add-memory" id="addMemoryButton" type="button" hidden>
+      <span>+</span> ضيف ذكرى
+    </button>
+
+    <dialog class="modal" id="loginModal">
+      <form method="dialog" class="modal-card" id="loginForm">
+        <button class="close-button" type="button" data-close="loginModal" aria-label="إلغاء وإغلاق">×</button>
+        <div class="modal-heart">♥</div>
+        <h2>أهلاً بيكم</h2>
+        <p>ادخلوا علشان تضيفوا لحظات جديدة للحيطة.</p>
+        <label>اسم المستخدم<input id="username" autocomplete="username" required /></label>
+        <label>كلمة المرور<input id="password" type="password" autocomplete="current-password" required /></label>
+        <p class="form-error" id="loginError"></p>
+        <button class="primary-button" type="submit">ادخل على ذكرياتنا</button>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="memoryModal">
+      <form method="dialog" class="modal-card add-card" id="memoryForm">
+        <button class="close-button" type="button" data-close="memoryModal" aria-label="إلغاء وإغلاق">×</button>
+        <div class="modal-heart">✦</div>
+        <h2>ذكرى جديدة</h2>
+        <p>اختاروا اليوم، وبعدها علّقوا الصور والفيديوهات اللي بتحبّوها.</p>
+        <label>تاريخ الذكرى<input id="memoryDate" type="date" required /></label>
+        <label class="upload-label">صور أو فيديوهات
+          <input id="memoryFiles" type="file" accept="image/*,video/*" multiple required />
+          <span class="upload-box" id="uploadBox">اضغطوا هنا لاختيار الملفات <small>ينفع تختاروا أكتر من صورة أو فيديو.</small></span>
+        </label>
+        <p class="form-error" id="memoryError"></p>
+        <button class="primary-button" type="submit">علّق الذكرى على الحيطة</button>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="identityModal">
+      <div class="modal-card identity-card">
+        <div class="modal-heart">♥</div>
+        <h2>مين اللي فاتح؟</h2>
+        <p>اختار اسمك علشان تفتح رسايلك الخاصة.</p>
+        <div class="choice-buttons">
+          <button class="identity-choice" type="button" data-person="Hagar">هاجر</button>
+          <button class="identity-choice" type="button" data-person="Mostafa">مصطفى</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="modal" id="messagesModal">
+      <div class="modal-card messages-card">
+        <button class="modal-add-media" id="addMediaFromMessages" type="button"><span>+</span> إضافة صور</button>
+        <div class="modal-heart">✉</div>
+        <h2 id="messagesHeading">رسايلنا</h2>
+        <p id="messagesPrompt">حابب تعمل إيه؟</p>
+        <div class="message-actions">
+          <button class="message-action write-action" id="writeMessageChoice" type="button"><span>✎</span> اكتب رسالة</button>
+          <button class="message-action read-action" id="readMessagesChoice" type="button"><span>✉</span> اقرأ الرسائل <b id="modalUnread">0</b></button>
+          <button class="message-action secret-action" id="secretMessageChoice" type="button" hidden><span>✦</span> رسالة مخصوص ليكي <i>🔒</i></button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="modal" id="secretPasswordModal">
+      <form method="dialog" class="modal-card secret-password-card" id="secretPasswordForm">
+        <button class="close-button" type="button" data-close="secretPasswordModal" aria-label="إلغاء وإغلاق">×</button>
+        <div class="secret-seal">✦</div>
+        <h2>رسالة سيكريت</h2>
+        <p>الرسالة دي متقفلة بكلمة سر.</p>
+        <label>كلمة السر<input id="secretPassword" type="password" required autocomplete="off" /></label>
+        <p class="form-error" id="secretPasswordError"></p>
+        <button class="primary-button" type="submit">افتح الرسالة</button>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="secretMessageModal">
+      <section class="modal-card secret-letter-card">
+        <button class="close-button" type="button" data-close="secretMessageModal" aria-label="إغلاق">×</button>
+        <div class="secret-envelope" aria-hidden="true">
+          <div class="envelope-back"></div>
+          <div class="letter-paper"><p id="secretLetterContent"></p><span>— مصطفى ♥</span></div>
+          <div class="envelope-front"></div>
+          <div class="envelope-flap"></div>
+          <div class="wax-seal">♥</div>
+        </div>
+        <h2>رسالة ليكي</h2>
+        <p class="secret-caption">من قلب مصطفى لقلبك.</p>
+      </section>
+    </dialog>
+
+    <dialog class="modal" id="composeModal">
+      <form method="dialog" class="modal-card" id="composeForm">
+        <button class="close-button" type="button" data-close="composeModal" aria-label="إلغاء وإغلاق">×</button>
+        <div class="modal-heart">✎</div>
+        <h2>اكتب رسالة</h2>
+        <p id="recipientLine">الرسالة دي هتوصل لصاحبها بس.</p>
+        <label>رسالتك<textarea id="messageText" maxlength="1200" required placeholder="اكتب من قلبك…"></textarea></label>
+        <p class="form-error" id="messageError"></p>
+        <button class="primary-button" type="submit">ابعت الرسالة</button>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="inboxModal">
+      <div class="modal-card inbox-card">
+        <button class="close-button" type="button" data-close="inboxModal" aria-label="إغلاق">×</button>
+        <div class="modal-heart">✉</div>
+        <h2>رسايلك</h2>
+        <p id="inboxSubheading">متبعتة ليك مخصوص.</p>
+        <div class="inbox-list" id="inboxList"></div>
+      </div>
+    </dialog>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
