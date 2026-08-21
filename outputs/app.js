@@ -46,12 +46,12 @@ const demoMemories = [];
 function readMemories() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? demoMemories; } catch { return demoMemories; } }
 function saveMemories(memories) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(memories));
-  firebaseSessionReady.then(() => setDoc(memoriesDocument, { groups:memories, updatedAt:Date.now() }, { merge:true })).catch(error => console.warn('Could not sync memories to Firebase:', error));
+  return firebaseSessionReady.then(() => setDoc(memoriesDocument, { groups:memories, updatedAt:Date.now() }, { merge:true }));
 }
 function readMessages() { try { return JSON.parse(localStorage.getItem(MESSAGE_STORAGE_KEY)) ?? []; } catch { return []; } }
 function saveMessages(messages) {
   localStorage.setItem(MESSAGE_STORAGE_KEY, JSON.stringify(messages));
-  firebaseSessionReady.then(() => setDoc(messagesDocument, { items:messages, updatedAt:Date.now() }, { merge:true })).catch(error => console.warn('Could not sync messages to Firebase:', error));
+  return firebaseSessionReady.then(() => setDoc(messagesDocument, { items:messages, updatedAt:Date.now() }, { merge:true }));
 }
 function otherPerson() { return currentPerson === 'Hagar' ? 'Mostafa' : 'Hagar'; }
 function personLabel(person) { return person === 'Hagar' ? 'هاجر' : 'مصطفى'; }
@@ -82,9 +82,10 @@ function renderWall() {
     row.innerHTML = `<div class="date-tag">${dateLabel(group.date)}</div>${loggedIn ? `<button class="group-delete" type="button" data-date="${group.date}" title="امسح اليوم ده">مسح اليوم</button>` : ''}<div class="rope"></div><div class="clips"></div>`;
     const clips = row.querySelector('.clips');
     group.items.forEach((item, itemIndex) => {
+      if (!item || typeof item.data !== 'string' || !item.data.trim()) return;
       const card = document.createElement('figure'); card.className='memory'; card.style.setProperty('--rotation', `${[-3,2,-1.5,3,-2,1][itemIndex % 6]}deg`);
       const safeName = escapeHtml(item.name || 'ذكرى جميلة');
-      card.innerHTML = `${loggedIn ? `<div class="memory-controls"><button type="button" class="replace-media" data-date="${group.date}" data-index="${itemIndex}" title="غيّر الملف">↻</button><button type="button" class="delete-media" data-date="${group.date}" data-index="${itemIndex}" title="امسح الملف">×</button></div>` : ''}<div class="media-wrap">${item.type === 'video' ? `<video src="${item.data}" autoplay muted loop playsinline></video><span class="video-mark">▶</span>` : `<img src="${item.data}" alt="${safeName}" loading="lazy">`}</div>`;
+      card.innerHTML = `${loggedIn ? `<div class="memory-controls"><button type="button" class="replace-media" data-date="${group.date}" data-index="${itemIndex}" title="غيّر الملف">↻</button><button type="button" class="delete-media" data-date="${group.date}" data-index="${itemIndex}" title="امسح الملف">×</button></div>` : ''}<div class="media-wrap">${item.type === 'video' ? `<video src="${item.data}" autoplay muted loop playsinline preload="metadata" disablepictureinpicture></video>` : `<img src="${item.data}" alt="${safeName}" loading="lazy">`}</div>`;
       clips.append(card);
     });
     const rope = row.querySelector('.rope');
@@ -157,11 +158,12 @@ function renderWall() {
       clips.addEventListener('pointerup',resume); clips.addEventListener('pointercancel',resume);
       requestAnimationFrame(move);
     };
-    requestAnimationFrame(() => {
+    // Wait for every row to have a real width before starting its own endless strip.
+    setTimeout(() => requestAnimationFrame(() => {
       const loopWidth=makeInfiniteStrip();
       syncRope(); buildContinuousRope(); positionBulbsOnRope(); hangMemoriesOnRope();
       startInfiniteLoop(loopWidth);
-    });
+    }), 90 + (groupIndex * 70));
     memoryWall.append(row);
   });
 }
@@ -194,7 +196,7 @@ document.querySelector('#memoryFiles').addEventListener('change', (event) => { c
 document.querySelector('#memoryForm').addEventListener('submit', async (event) => {
   event.preventDefault(); const date=document.querySelector('#memoryDate').value; const files=[...document.querySelector('#memoryFiles').files]; const error=document.querySelector('#memoryError'); error.textContent='';
   if (!date || !files.length) { error.textContent='اختاروا التاريخ والملفات الأول.'; return; }
-  try { const items = await Promise.all(files.map(fileToItem)); const all=readMemories(); const existing=all.find(group=>group.date===date); if(existing) existing.items.push(...items); else all.push({date,items}); saveMemories(all); renderWall(); memoryModal.close(); event.target.reset(); } catch (saveError) { error.textContent=saveError?.name==='QuotaExceededError' ? 'مساحة الحفظ على المتصفح قربت تتملي. جرّبوا صور أقل أو أصغر.' : 'حصلت مشكلة أثناء حفظ الملفات. جرّبوا تاني.'; }
+  try { const items = await Promise.all(files.map(fileToItem)); const all=readMemories(); const existing=all.find(group=>group.date===date); if(existing) existing.items.push(...items); else all.push({date,items}); await saveMemories(all); renderWall(); memoryModal.close(); event.target.reset(); } catch (saveError) { error.textContent=saveError?.code==='permission-denied' || saveError?.code?.startsWith('auth/') ? 'Firebase مانع الحفظ: فعّلوا Anonymous في Authentication وانشروا Rules بتاعة Firestore.' : saveError?.name==='QuotaExceededError' ? 'مساحة الحفظ على المتصفح قربت تتملي. جرّبوا صور أقل أو أصغر.' : 'حصلت مشكلة أثناء رفع أو حفظ الملفات. جرّبوا تاني.'; }
 });
 memoryWall.addEventListener('click', async (event) => {
   const button = event.target.closest('button'); if (!button || !loggedIn) return;

@@ -181,3 +181,23 @@ body { font-size:1rem; }.brand,.intro h1,.modal-card h2 { font-family:Marhey,san
   }
 }
 @media(max-width:600px) { .brand { font-size:1.1rem; }.intro h1 { font-size:2.45rem; }.eyebrow { font-size:.61rem; }.intro>p:last-child { font-size:.77rem; }.love-counter { font-size:.68rem; }.login-button,.primary-button,.messages-button,.add-memory { font-size:.68rem; }.modal-card h2 { font-size:1.2rem; }.modal-card p,.modal label { font-size:.7rem; }.modal input:not([type=file]),.modal textarea { font-size:.77rem; }.message-action,.identity-choice { font-size:.76rem; }.date-tag { font-size:.68rem; }.letter-paper p { font-size:1.1rem; }.letter-paper span { font-size:.96rem; } }
+
+/* Keep the written letter visible above every envelope layer on phones. */
+@media(max-width:600px) {
+  #secretMessageModal .secret-envelope { isolation:isolate; }
+  #secretMessageModal .letter-paper {
+    z-index:20 !important;
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    color:#704956 !important;
+  }
+  #secretMessageModal .letter-paper p,
+  #secretMessageModal .letter-paper span {
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    color:inherit;
+  }
+  #secretMessageModal .letter-paper span { color:#b85c76 !important; }
+}
