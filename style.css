@@ -152,6 +152,9 @@ body { font-size:1rem; }.brand,.intro h1,.modal-card h2 { font-family:Marhey,san
 /* The ropes drift continuously, so the photo strip must not snap between cards. */
 .clips { scroll-snap-type:none; }
 
+/* The rope is driven by the swipe position, so it must not ease behind the photos. */
+.rope { transition:none !important; }
+
 /* Once the envelope disappears, the sheet unfolds to fit a longer letter. */
 .letter-paper {
   box-sizing:border-box;
