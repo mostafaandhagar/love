@@ -128,7 +128,7 @@ function renderWall() {
     clips.addEventListener('scroll', syncRope, { passive:true });
     const makeInfiniteStrip = () => {
       const originalCards=[...clips.querySelectorAll('.memory')];
-      if (!originalCards.length) return 0;
+      if (!originalCards.length || clips.clientWidth < 20 || originalCards[0].offsetWidth < 10) return 0;
       let firstCopy;
       // Keep adding identical rounds until one complete round can leave the screen unseen.
       do {
@@ -142,12 +142,14 @@ function renderWall() {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || loopWidth < 3) return;
       const direction = groupIndex % 2 === 0 ? -1 : 1;
       let paused=false, lastTime=performance.now();
+      clips.style.overflowX='scroll';
+      clips.style.scrollBehavior='auto';
       clips.scrollLeft=direction < 0 ? loopWidth : 0;
       const move = now => {
         if (!row.isConnected) return;
         const elapsed=Math.min(40,now-lastTime); lastTime=now;
         if (!paused) {
-          clips.scrollLeft += direction * elapsed * .018;
+          clips.scrollLeft += direction * elapsed * .04;
           if (direction > 0 && clips.scrollLeft >= loopWidth) clips.scrollLeft -= loopWidth;
           if (direction < 0 && clips.scrollLeft <= 0) clips.scrollLeft += loopWidth;
         }
@@ -158,13 +160,17 @@ function renderWall() {
       clips.addEventListener('pointerup',resume); clips.addEventListener('pointercancel',resume);
       requestAnimationFrame(move);
     };
-    // Wait for every row to have a real width before starting its own endless strip.
-    setTimeout(() => requestAnimationFrame(() => {
+    // Rows below the fold can be measured a little later, so retry until each one has its width.
+    const activateInfiniteLoop = (attempt=0) => {
+      if (!row.isConnected) return;
       const loopWidth=makeInfiniteStrip();
+      if (loopWidth < 3 && attempt < 10) { setTimeout(() => activateInfiniteLoop(attempt + 1),180); return; }
       syncRope(); buildContinuousRope(); positionBulbsOnRope(); hangMemoriesOnRope();
       startInfiniteLoop(loopWidth);
-    }), 90 + (groupIndex * 70));
+    };
     memoryWall.append(row);
+    // Start only after this row is mounted and the browser has completed a layout pass.
+    requestAnimationFrame(() => requestAnimationFrame(() => activateInfiniteLoop()));
   });
 }
 function updateUnreadUI() { const count = loggedIn ? unreadCount() : 0; document.querySelector('#headerUnread').textContent = count; document.querySelector('#modalUnread').textContent = count; }
@@ -187,7 +193,22 @@ messagesButton.addEventListener('click', () => { updateUnreadUI(); messagesModal
 document.querySelector('#addMediaFromMessages').addEventListener('click', () => { messagesModal.close(); addButton.click(); });
 document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => document.querySelector(`#${button.dataset.close}`).close()));
 document.querySelector('#writeMessageChoice').addEventListener('click', () => { messagesModal.close(); document.querySelector('#recipientLine').textContent = `الرسالة دي هتوصل لمصطفى بس.`; if (otherPerson()==='Hagar') document.querySelector('#recipientLine').textContent='الرسالة دي هتوصل لهاجر بس.'; document.querySelector('#messageText').value=''; document.querySelector('#messageError').textContent=''; composeModal.showModal(); });
-document.querySelector('#composeForm').addEventListener('submit', event => { event.preventDefault(); const text=document.querySelector('#messageText').value.trim(); if (!text) { document.querySelector('#messageError').textContent='اكتب رسالة الأول.'; return; } const messages=readMessages(); messages.push({ id:crypto.randomUUID(), from:currentPerson, to:otherPerson(), text, createdAt:new Date().toISOString(), read:false }); saveMessages(messages); composeModal.close(); updateUnreadUI(); messagesModal.showModal(); });
+document.querySelector('#composeForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  const text=document.querySelector('#messageText').value.trim();
+  const error=document.querySelector('#messageError');
+  if (!text) { error.textContent='اكتب رسالة الأول.'; return; }
+  error.textContent='جاري إرسال الرسالة…';
+  const messages=readMessages();
+  messages.push({ id:crypto.randomUUID(), from:currentPerson, to:otherPerson(), text, createdAt:new Date().toISOString(), read:false });
+  try {
+    await saveMessages(messages);
+    error.textContent='';
+    composeModal.close(); updateUnreadUI(); messagesModal.showModal();
+  } catch (sendError) {
+    error.textContent=sendError?.code==='permission-denied' || sendError?.code?.startsWith('auth/') ? 'Firebase مانع الإرسال: فعّل Anonymous وانشر Rules بتاعة Firestore.' : 'الرسالة ما اتبعتتش. تأكد من الإنترنت وجرب تاني.';
+  }
+});
 document.querySelector('#readMessagesChoice').addEventListener('click', () => { messagesModal.close(); const messages=readMessages(); const received=messages.filter(message => message.to===currentPerson).sort((a,b)=>b.createdAt.localeCompare(a.createdAt)); messages.forEach(message => { if (message.to===currentPerson) message.read=true; }); saveMessages(messages); document.querySelector('#inboxSubheading').textContent = received.length ? `رسايل متبعتة لـ ${personLabel(currentPerson)}.` : `لسه مفيش رسايل — ${personLabel(otherPerson())} يقدر يبعتلك رسالة.`; document.querySelector('#inboxList').innerHTML = received.length ? received.map(message => `<article class="message-note"><small>من ${personLabel(message.from)} · ${new Intl.DateTimeFormat('ar-EG',{dateStyle:'medium',timeStyle:'short'}).format(new Date(message.createdAt))}</small><p>${escapeHtml(message.text).replace(/\n/g,'<br>')}</p></article>`).join('') : '<p class="no-messages">صندوق الرسايل مستني أول كلمة حلوة. ♥</p>'; updateUnreadUI(); inboxModal.showModal(); });
 document.querySelector('#secretMessageChoice').addEventListener('click', () => { if (currentPerson !== 'Hagar') return; messagesModal.close(); document.querySelector('#secretPassword').value=''; document.querySelector('#secretPasswordError').textContent=''; secretPasswordModal.showModal(); });
 document.querySelector('#secretPasswordForm').addEventListener('submit', event => { event.preventDefault(); if (document.querySelector('#secretPassword').value !== 'mostafaloveshagar') { document.querySelector('#secretPasswordError').textContent='متحاوليش طالما أنا مقولتلكيش الباسوورد.'; return; } const defaultLetter='صباح العسل \nبما اني قولتلك ع الباسوورد يبقى اكيد قولتلك اني بحبك        .\nف بالمرة حابب احكيلك اني من اول لحظة كلمتك وانا مشدودلك اكتر من حاجة حصلتلي ف حياتي وفضلي اعجابي بيكي يزيد لحد اول بوم شوفتك ف الحقيقة لحظتها انبهرت جدا ان ممكن يكون في بنت بالجمال ده وبعد ما خرجنا وروحتك كنت ساعتها فعلا عرفت اني بحبك بجد رغم المدة القصيرة اللي عرفتك فيها بس ده اللي حصل محدش ليه ع قلبه سلطان بقى  '; const letter=defaultLetter; localStorage.setItem(SECRET_MESSAGE_STORAGE_KEY,letter); document.querySelector('#secretLetterContent').innerHTML=escapeHtml(letter).replace(/\n/g,'<br>'); secretPasswordModal.close(); secretMessageModal.showModal(); });
