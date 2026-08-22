@@ -201,3 +201,17 @@ body { font-size:1rem; }.brand,.intro h1,.modal-card h2 { font-family:Marhey,san
   }
   #secretMessageModal .letter-paper span { color:#b85c76 !important; }
 }
+
+/* The unfolding phase must keep the sheet in its final place instead of restarting its transform. */
+@media(max-width:600px) {
+  #secretMessageModal .letter-paper {
+    animation:letterSlideOutMobile 1.7s 1s cubic-bezier(.2,.85,.25,1) forwards !important;
+  }
+  #secretMessageModal .secret-envelope.letter-ready .letter-paper {
+    animation:none !important;
+    transform:translateY(-164px) !important;
+    height:min(62dvh,520px) !important;
+    overflow-y:auto !important;
+    transition:height .4s ease-out;
+  }
+}

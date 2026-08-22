@@ -160,17 +160,9 @@ function renderWall() {
       clips.addEventListener('pointerup',resume); clips.addEventListener('pointercancel',resume);
       requestAnimationFrame(move);
     };
-    // Rows below the fold can be measured a little later, so retry until each one has its width.
-    const activateInfiniteLoop = (attempt=0) => {
-      if (!row.isConnected) return;
-      const loopWidth=makeInfiniteStrip();
-      if (loopWidth < 3 && attempt < 10) { setTimeout(() => activateInfiniteLoop(attempt + 1),180); return; }
-      syncRope(); buildContinuousRope(); positionBulbsOnRope(); hangMemoriesOnRope();
-      startInfiniteLoop(loopWidth);
-    };
     memoryWall.append(row);
-    // Start only after this row is mounted and the browser has completed a layout pass.
-    requestAnimationFrame(() => requestAnimationFrame(() => activateInfiniteLoop()));
+    // Manual only: the whole rope and its photos follow the user's swipe.
+    requestAnimationFrame(() => { syncRope(); buildContinuousRope(); positionBulbsOnRope(); hangMemoriesOnRope(); });
   });
 }
 function updateUnreadUI() { const count = loggedIn ? unreadCount() : 0; document.querySelector('#headerUnread').textContent = count; document.querySelector('#modalUnread').textContent = count; }
@@ -211,7 +203,7 @@ document.querySelector('#composeForm').addEventListener('submit', async event =>
 });
 document.querySelector('#readMessagesChoice').addEventListener('click', () => { messagesModal.close(); const messages=readMessages(); const received=messages.filter(message => message.to===currentPerson).sort((a,b)=>b.createdAt.localeCompare(a.createdAt)); messages.forEach(message => { if (message.to===currentPerson) message.read=true; }); saveMessages(messages); document.querySelector('#inboxSubheading').textContent = received.length ? `رسايل متبعتة لـ ${personLabel(currentPerson)}.` : `لسه مفيش رسايل — ${personLabel(otherPerson())} يقدر يبعتلك رسالة.`; document.querySelector('#inboxList').innerHTML = received.length ? received.map(message => `<article class="message-note"><small>من ${personLabel(message.from)} · ${new Intl.DateTimeFormat('ar-EG',{dateStyle:'medium',timeStyle:'short'}).format(new Date(message.createdAt))}</small><p>${escapeHtml(message.text).replace(/\n/g,'<br>')}</p></article>`).join('') : '<p class="no-messages">صندوق الرسايل مستني أول كلمة حلوة. ♥</p>'; updateUnreadUI(); inboxModal.showModal(); });
 document.querySelector('#secretMessageChoice').addEventListener('click', () => { if (currentPerson !== 'Hagar') return; messagesModal.close(); document.querySelector('#secretPassword').value=''; document.querySelector('#secretPasswordError').textContent=''; secretPasswordModal.showModal(); });
-document.querySelector('#secretPasswordForm').addEventListener('submit', event => { event.preventDefault(); if (document.querySelector('#secretPassword').value !== 'mostafaloveshagar') { document.querySelector('#secretPasswordError').textContent='متحاوليش طالما أنا مقولتلكيش الباسوورد.'; return; } const defaultLetter='صباح العسل \nبما اني قولتلك ع الباسوورد يبقى اكيد قولتلك اني بحبك        .\nف بالمرة حابب احكيلك اني من اول لحظة كلمتك وانا مشدودلك اكتر من حاجة حصلتلي ف حياتي وفضلي اعجابي بيكي يزيد لحد اول بوم شوفتك ف الحقيقة لحظتها انبهرت جدا ان ممكن يكون في بنت بالجمال ده وبعد ما خرجنا وروحتك كنت ساعتها فعلا عرفت اني بحبك بجد رغم المدة القصيرة اللي عرفتك فيها بس ده اللي حصل محدش ليه ع قلبه سلطان بقى  '; const letter=defaultLetter; localStorage.setItem(SECRET_MESSAGE_STORAGE_KEY,letter); document.querySelector('#secretLetterContent').innerHTML=escapeHtml(letter).replace(/\n/g,'<br>'); secretPasswordModal.close(); secretMessageModal.showModal(); });
+document.querySelector('#secretPasswordForm').addEventListener('submit', event => { event.preventDefault(); if (document.querySelector('#secretPassword').value !== 'mostafaloveshagar') { document.querySelector('#secretPasswordError').textContent='متحاوليش طالما أنا مقولتلكيش الباسوورد.'; return; } const defaultLetter='صباح العسل \nبما اني قولتلك ع الباسوورد يبقى اكيد قولتلك اني بحبك        .\nف بالمرة حابب احكيلك اني من اول لحظة كلمتك وانا مشدودلك اكتر من حاجة حصلتلي ف حياتي وفضلي اعجابي بيكي يزيد لحد اول بوم شوفتك ف الحقيقة لحظتها انبهرت جدا ان ممكن يكون في بنت بالجمال ده وبعد ما خرجنا وروحتك كنت ساعتها فعلا عرفت اني بحبك بجد رغم المدة القصيرة اللي عرفتك فيها بس ده اللي حصل محدش ليه ع قلبه سلطان بقى  '; const letter=defaultLetter; localStorage.setItem(SECRET_MESSAGE_STORAGE_KEY,letter); document.querySelector('#secretLetterContent').innerHTML=escapeHtml(letter).replace(/\n/g,'<br>'); const envelope=document.querySelector('#secretMessageModal .secret-envelope'); envelope.classList.remove('letter-ready'); secretPasswordModal.close(); secretMessageModal.showModal(); setTimeout(() => envelope.classList.add('letter-ready'),3000); });
 addButton.addEventListener('click', () => { document.querySelector('#memoryDate').value = new Date().toISOString().slice(0,10); document.querySelector('#uploadBox').innerHTML='اضغطوا هنا لاختيار الملفات <small>ينفع تختاروا أكتر من صورة أو فيديو.</small>'; memoryModal.showModal(); });
 document.querySelector('#memoryFiles').addEventListener('change', (event) => { const n=event.target.files.length; document.querySelector('#uploadBox').innerHTML = n ? `تم اختيار ${n} ملف ✨ <small>اضغطوا لو عايزين تغيّروهم.</small>` : 'اضغطوا هنا لاختيار الملفات <small>ينفع تختاروا أكتر من صورة أو فيديو.</small>'; });
 document.querySelector('#memoryForm').addEventListener('submit', async (event) => {
