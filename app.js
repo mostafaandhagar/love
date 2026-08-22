@@ -124,6 +124,8 @@ function renderWall() {
     const syncRope = () => {
       row.style.setProperty('--rope-width', `${Math.max(clips.scrollWidth,clips.clientWidth)}px`);
       row.style.setProperty('--rope-shift', `${-clips.scrollLeft}px`);
+      // Inline transform wins over the small-screen fallback, so every rope follows its own swipe.
+      rope.style.transform=`translateX(${-clips.scrollLeft}px) rotate(${row.style.getPropertyValue('--tilt') || '0deg'})`;
     };
     clips.addEventListener('scroll', syncRope, { passive:true });
     const makeInfiniteStrip = () => {
