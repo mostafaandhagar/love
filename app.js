@@ -74,11 +74,13 @@ async function fileToItem(file) { const type=file.type.startsWith('video/')?'vid
 function updateLoveCounter() { const firstDay = new Date(2026, 7, 15); const today = new Date(); firstDay.setHours(0,0,0,0); today.setHours(0,0,0,0); const days = Math.max(0, Math.floor((today - firstDay) / 86400000)); document.querySelector('#daysTogether').textContent = new Intl.NumberFormat('ar-EG').format(days); document.querySelector('#daysWord').textContent = days >= 3 && days <= 10 ? 'أيام' : 'يوم'; }
 
 function renderWall() {
+  // Remember how far each day's row was scrolled so a rebuild doesn't yank it back to the start mid-swipe.
+  const previousScrollByDate = new Map([...memoryWall.querySelectorAll('.memory-row')].map(existingRow => [existingRow.dataset.date, existingRow.querySelector('.clips')?.scrollLeft || 0]));
   const memories = readMemories().sort((a,b) => b.date.localeCompare(a.date));
   memoryWall.innerHTML = '';
   emptyState.hidden = memories.length !== 0;
   memories.forEach((group, groupIndex) => {
-    const row = document.createElement('article'); row.className = 'memory-row'; row.style.setProperty('--tilt', `${groupIndex % 2 ? '.4deg' : '-.35deg'}`);
+    const row = document.createElement('article'); row.className = 'memory-row'; row.dataset.date = group.date; row.style.setProperty('--tilt', `${groupIndex % 2 ? '.4deg' : '-.35deg'}`);
     row.innerHTML = `<div class="date-tag">${dateLabel(group.date)}</div>${loggedIn ? `<button class="group-delete" type="button" data-date="${group.date}" title="امسح اليوم ده">مسح اليوم</button>` : ''}<div class="rope"></div><div class="clips"></div>`;
     const clips = row.querySelector('.clips');
     group.items.forEach((item, itemIndex) => {
@@ -164,7 +166,11 @@ function renderWall() {
     };
     memoryWall.append(row);
     // Manual only: the whole rope and its photos follow the user's swipe.
-    requestAnimationFrame(() => { syncRope(); buildContinuousRope(); positionBulbsOnRope(); hangMemoriesOnRope(); });
+    requestAnimationFrame(() => {
+      const savedScroll = previousScrollByDate.get(group.date);
+      if (savedScroll) clips.scrollLeft = savedScroll;
+      syncRope(); buildContinuousRope(); positionBulbsOnRope(); hangMemoriesOnRope();
+    });
   });
 }
 function updateUnreadUI() { const count = loggedIn ? unreadCount() : 0; document.querySelector('#headerUnread').textContent = count; document.querySelector('#modalUnread').textContent = count; }
@@ -225,7 +231,11 @@ lightSwitch.addEventListener('click', () => { const on=document.body.classList.t
 onSnapshot(memoriesDocument, snapshot => {
   const groups=snapshot.data()?.groups;
   if (!Array.isArray(groups)) return;
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(groups));
+  const incoming = JSON.stringify(groups);
+  // The very first snapshot on page load usually just confirms what's already cached locally.
+  // Skip the rebuild in that case so a row being swiped right then doesn't get yanked out from under the finger.
+  if (incoming === JSON.stringify(readMemories())) return;
+  localStorage.setItem(STORAGE_KEY,incoming);
   renderWall();
 }, error => console.warn('Could not read memories from Firebase:', error));
 onSnapshot(messagesDocument, snapshot => {
