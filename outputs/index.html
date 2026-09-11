@@ -10,6 +10,41 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <section class="apology-gate" id="apologyGate" aria-live="polite">
+      <div class="apology-panel">
+        <div class="apology-step" data-apology-step="notice">
+          <span class="apology-heart">♥</span>
+          <h1>نأسف الموقع متوقف عن العمل لحد ما هجورة تتصالح</h1>
+          <button class="apology-button" id="imHagoura" type="button">أنا هجورة</button>
+        </div>
+        <div class="apology-step" data-apology-step="password" hidden>
+          <h1>اكتبي الباسوورد</h1>
+          <input id="apologyPassword" type="password" autocomplete="current-password" placeholder="الباسوورد" />
+          <p class="apology-error" id="apologyError"></p>
+          <button class="apology-button" id="unlockApology" type="button">دخول</button>
+        </div>
+        <div class="apology-step" data-apology-step="sorry" hidden>
+          <img class="apology-photo" src="assets/apology-photo.jpg" alt="" onerror="this.classList.add('missing-apology-photo')" />
+          <p class="apology-message">حقك عليا يهجورتي انتي عارفة ان ميهونش عليا اسيبك زعلانة</p>
+          <audio id="apologySong" src="assets/apology-song.mp3" loop></audio>
+          <button class="apology-button" id="chooseGift" type="button">اختاري هدية افتراضية لحد م اشوفك</button>
+        </div>
+        <div class="apology-step apology-gifts" data-apology-step="gifts" hidden>
+          <h1>اختاري هديتك</h1>
+          <h2>اختاري بوكيه</h2><div class="gift-grid" id="bouquetChoices"></div>
+          <h2>اختاري شوكلاتة</h2><div class="gift-grid" id="chocolateChoices"></div>
+          <input class="gift-picker" id="bouquetUpload" type="file" accept="image/*" hidden />
+          <input class="gift-picker" id="chocolateUpload" type="file" accept="image/*" hidden />
+          <p class="apology-error" id="giftError"></p>
+          <button class="apology-button" id="confirmGift" type="button">تأكيد اختياراتي</button>
+        </div>
+        <div class="apology-step" data-apology-step="done" hidden>
+          <span class="apology-heart">♥</span>
+          <h1>مصطفى الآن يعمل بجد لإسعاد أغلى الناس</h1>
+          <p class="saved-gifts" id="savedGifts"></p>
+        </div>
+      </div>
+    </section>
     <div class="ambient-glow glow-one"></div>
     <div class="ambient-glow glow-two"></div>
     <header class="topbar">
