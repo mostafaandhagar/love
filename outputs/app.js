@@ -76,70 +76,38 @@ async function fileToItem(file) { const type=file.type.startsWith('video/')?'vid
 // Temporary reconciliation page: automatically disappears after 13 September 2026, Cairo time.
 const APOLOGY_ENDS_AT = new Date('2026-09-13T23:59:59+03:00').getTime();
 const apologyGate=document.querySelector('#apologyGate');
-const bouquetChoices=[...Array(7)].map((_,index)=>({id:`bouquet-${index+1}`,label:`بوكيه ${index+1}`,image:`assets/bouquet-${index+1}.jpg`}));
-const chocolateChoices=[...Array(7)].map((_,index)=>({id:`chocolate-${index+1}`,label:`شوكولاتة ${index+1}`,image:`assets/chocolate-${index+1}.jpg`}));
-let chosenBouquet=null, chosenChocolate=null, savedApologyGift=null;
 function showApologyStep(name) { document.querySelectorAll('[data-apology-step]').forEach(step => step.hidden=step.dataset.apologyStep!==name); }
-function giftButton(choice, type) {
-  const button=document.createElement('button'); button.type='button'; button.className='gift-choice'; button.dataset.type=type; button.dataset.id=choice.id;
-  if (choice.custom) button.classList.add('other-choice');
-  button.innerHTML=choice.custom ? 'اختيار تاني<br><small>اختاري صورة من موبايلك</small>' : `<img src="${choice.image}" alt="${choice.label}" onerror="this.remove()"><span>${choice.label}</span>`;
-  button.addEventListener('click', () => {
-    if (choice.custom) { document.querySelector(`#${type}Upload`).click(); return; }
-    chooseGift(type,choice,button);
-  });
-  return button;
-}
-function chooseGift(type,choice,button) {
-  if (type==='bouquet') chosenBouquet=choice; else chosenChocolate=choice;
-  document.querySelectorAll(`#${type}Choices .gift-choice`).forEach(card=>card.classList.remove('is-selected'));
-  button.classList.add('is-selected');
-}
-function renderGiftChoices() {
-  const bouquetGrid=document.querySelector('#bouquetChoices'), chocolateGrid=document.querySelector('#chocolateChoices');
-  bouquetGrid.innerHTML=''; chocolateGrid.innerHTML='';
-  [...bouquetChoices,{id:'bouquet-custom',custom:true}].forEach(choice=>bouquetGrid.append(giftButton(choice,'bouquet')));
-  [...chocolateChoices,{id:'chocolate-custom',custom:true}].forEach(choice=>chocolateGrid.append(giftButton(choice,'chocolate')));
-}
-function showSavedGift() {
-  const summary=document.querySelector('#savedGifts');
-  summary.textContent=savedApologyGift ? `اختيار هجورة المحفوظ:\n${savedApologyGift.bouquet.label}\n${savedApologyGift.chocolate.label}` : '';
-  showApologyStep('done');
-}
 function setupApologyGate() {
-  if (Date.now() >= APOLOGY_ENDS_AT) { apologyGate.hidden=true; return; }
-  renderGiftChoices();
-  document.querySelector('#imHagoura').addEventListener('click',()=>showApologyStep('password'));
-  document.querySelector('#unlockApology').addEventListener('click',()=>{
-    const password=document.querySelector('#apologyPassword').value;
-    if (password!=='hagarandmostafa') { document.querySelector('#apologyError').textContent='الباسوورد مش صح يا هجورة.'; return; }
-    document.querySelector('#apologyError').textContent='';
-    if (savedApologyGift) { showSavedGift(); return; }
-    showApologyStep('sorry');
-    document.querySelector('#apologySong').play().catch(()=>{});
+  const replyInboxFab=document.querySelector('#replyInboxFab');
+  const replyModal=document.querySelector('#apologyReplyModal');
+  let savedReply='';
+  onSnapshot(apologyDocument,snapshot=>{ const data=snapshot.data(); savedReply=data?.reply || ''; replyInboxFab.hidden=!data?.signed; });
+  replyInboxFab.addEventListener('click',()=>{
+    document.querySelector('#apologyReplyNote').textContent=savedReply || 'لسه مفيش رد محفوظ.';
+    replyModal.showModal();
   });
-  document.querySelector('#chooseGift').addEventListener('click',()=>showApologyStep('gifts'));
-  ['bouquet','chocolate'].forEach(type=>document.querySelector(`#${type}Upload`).addEventListener('change',async event=>{
-    const file=event.target.files[0]; if (!file) return;
-    document.querySelector('#giftError').textContent='جاري رفع الصورة…';
-    try {
-      const choice={id:`${type}-custom`,label:`اختيار خاص: ${file.name}`,image:await uploadToCloudinary(file,'image'),custom:true};
-      const button=document.querySelector(`#${type}Choices .other-choice`); button.innerHTML=`<img src="${choice.image}" alt="اختيار خاص"><span>اختيارك الخاص</span>`; button.classList.remove('other-choice');
-      chooseGift(type,choice,button); document.querySelector('#giftError').textContent='';
-    } catch { document.querySelector('#giftError').textContent='الصورة ما اترفعتش، جربي تاني.'; }
-  }));
-  document.querySelector('#confirmGift').addEventListener('click',async()=>{
-    const error=document.querySelector('#giftError');
-    if (!chosenBouquet || !chosenChocolate) { error.textContent='اختاري بوكيه وشوكولاتة الأول يا هجورة.'; return; }
-    error.textContent='جاري حفظ اختياراتك…';
+  if (Date.now() >= APOLOGY_ENDS_AT) { apologyGate.hidden=true; return; }
+  document.querySelector('#giftArrived').addEventListener('click',()=>showApologyStep('letter'));
+  document.querySelector('#giftNotArrived').addEventListener('click',()=>showApologyStep('liar'));
+  document.querySelector('#giftActuallyArrived').addEventListener('click',()=>showApologyStep('letter'));
+  document.querySelector('#replyToLetter').addEventListener('click',()=>showApologyStep('reply'));
+  document.querySelector('#sendReply').addEventListener('click',()=>{
+    const reply=document.querySelector('#apologyReply').value.trim();
+    if (!reply) { document.querySelector('#replyError').textContent='اكتبي ردك الأول.'; return; }
+    document.querySelector('#replyError').textContent=''; showApologyStep('sign');
+  });
+  document.querySelector('#confirmNotAngry').addEventListener('click',async()=>{
+    const signature=document.querySelector('#apologySignature').value.trim();
+    const error=document.querySelector('#signatureError');
+    if (signature!=='هاجر') { error.textContent='اكتبي الإمضاء صح يا هجورة.'; return; }
+    error.textContent='جاري إرسال الرسالة…';
     try {
       await firebaseSessionReady;
-      savedApologyGift={bouquet:chosenBouquet,chocolate:chosenChocolate,chosenAt:Date.now()};
-      await setDoc(apologyDocument,savedApologyGift);
-      error.textContent=''; showSavedGift();
-    } catch { error.textContent='الاختيارات ما اتحفظتش، جربي تاني.'; }
+      const reply=document.querySelector('#apologyReply').value.trim();
+      await setDoc(apologyDocument,{ reply, signed:true, signedAt:Date.now() });
+      error.textContent=''; showApologyStep('done');
+    } catch { error.textContent='الرسالة ما اتحفظتش، جربي تاني.'; }
   });
-  onSnapshot(apologyDocument,snapshot=>{ if (snapshot.exists()) savedApologyGift=snapshot.data(); });
 }
 function updateLoveCounter() { const firstDay = new Date(2026, 7, 15); const today = new Date(); firstDay.setHours(0,0,0,0); today.setHours(0,0,0,0); const days = Math.max(0, Math.floor((today - firstDay) / 86400000)); document.querySelector('#daysTogether').textContent = new Intl.NumberFormat('ar-EG').format(days); document.querySelector('#daysWord').textContent = days >= 3 && days <= 10 ? 'أيام' : 'يوم'; }
 
