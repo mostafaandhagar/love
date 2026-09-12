@@ -80,11 +80,17 @@ function showApologyStep(name) { document.querySelectorAll('[data-apology-step]'
 function setupApologyGate() {
   const replyInboxFab=document.querySelector('#replyInboxFab');
   const replyModal=document.querySelector('#apologyReplyModal');
+  const replyPasswordModal=document.querySelector('#apologyReplyPasswordModal');
   let savedReply='';
   onSnapshot(apologyDocument,snapshot=>{ const data=snapshot.data(); savedReply=data?.reply || ''; replyInboxFab.hidden=!data?.signed; });
   replyInboxFab.addEventListener('click',()=>{
+    document.querySelector('#apologyReplyPassword').value=''; document.querySelector('#apologyReplyPasswordError').textContent='';
+    replyPasswordModal.showModal();
+  });
+  document.querySelector('#openApologyReply').addEventListener('click',()=>{
+    if (document.querySelector('#apologyReplyPassword').value!=='هجورتي') { document.querySelector('#apologyReplyPasswordError').textContent='الباسوورد مش صح.'; return; }
     document.querySelector('#apologyReplyNote').textContent=savedReply || 'لسه مفيش رد محفوظ.';
-    replyModal.showModal();
+    replyPasswordModal.close(); replyModal.showModal();
   });
   if (Date.now() >= APOLOGY_ENDS_AT) { apologyGate.hidden=true; return; }
   document.querySelector('#giftArrived').addEventListener('click',()=>showApologyStep('letter'));

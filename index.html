@@ -193,6 +193,18 @@
       </div>
     </dialog>
 
+    <dialog class="modal" id="apologyReplyPasswordModal">
+      <div class="modal-card">
+        <button class="close-button" type="button" data-close="apologyReplyPasswordModal" aria-label="إغلاق">×</button>
+        <div class="modal-heart">🔒</div>
+        <h2>رسالة هجورة</h2>
+        <p>اكتب الباسوورد عشان تفتح الرسالة.</p>
+        <input id="apologyReplyPassword" type="password" autocomplete="current-password" placeholder="الباسوورد" />
+        <p class="form-error" id="apologyReplyPasswordError"></p>
+        <button class="primary-button" id="openApologyReply" type="button">افتح الرسالة</button>
+      </div>
+    </dialog>
+
     <script type="module" src="app.js"></script>
   </body>
 </html>
