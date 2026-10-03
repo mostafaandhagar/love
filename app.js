@@ -1,450 +1,285 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js';
-import { getFirestore, doc, onSnapshot, runTransaction } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
+import { getFirestore, doc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyB8571CLuVK9RwvN16p8agV95w0G9AfhSg',
-  authDomain: 'mostafasharaf-91a86.firebaseapp.com',
-  projectId: 'mostafasharaf-91a86',
-  storageBucket: 'mostafasharaf-91a86.firebasestorage.app',
-  messagingSenderId: '1060150475919',
-  appId: '1:1060150475919:web:65346cd9aa5d22aee1c4fa'
+apiKey: 'AIzaSyB8571CLuVK9RwvN16p8agV95w0G9AfhSg',
+authDomain: 'mostafasharaf-91a86.firebaseapp.com',
+projectId: 'mostafasharaf-91a86',
+storageBucket: 'mostafasharaf-91a86.firebasestorage.app',
+messagingSenderId: '1060150475919',
+appId: '1:1060150475919:web:65346cd9aa5d22aee1c4fa'
 };
 const firebaseApp = initializeApp(firebaseConfig);
 const database = getFirestore(firebaseApp);
 const firebaseAuth = getAuth(firebaseApp);
 const firebaseSessionReady = signInAnonymously(firebaseAuth).catch(error => {
-  console.warn('Could not create Firebase session:', error);
-  throw error;
+console.warn('Could not create Firebase session:', error);
+throw error;
 });
 const memoriesDocument = doc(database, 'memoryWall', 'sharedMemories');
 const messagesDocument = doc(database, 'memoryWall', 'privateMessages');
+const apologyDocument = doc(database, 'memoryWall', 'apologyGift');
 const CLOUDINARY_CLOUD_NAME = 'klxrsmyj';
 const CLOUDINARY_UPLOAD_PRESET = 'hagar_mostafa_memories';
 
-firebaseSessionReady.catch(() => {});
-
-const LS = { memories: 'hagar-mostafa-memory-wall-v1', messages: 'hagar-mostafa-private-messages-v1', lights: 'hagar-mostafa-lights' };
-const $ = selector => document.querySelector(selector);
-const loginButton = $('#loginButton'), messagesButton = $('#messagesButton'), addButton = $('#addMemoryButton');
-const loginModal = $('#loginModal'), memoryModal = $('#memoryModal'), identityModal = $('#identityModal');
-const messagesModal = $('#messagesModal'), composeModal = $('#composeModal'), inboxModal = $('#inboxModal');
-const confirmModal = $('#confirmModal'), lightbox = $('#lightbox');
-const memoryWall = $('#memoryWall'), emptyState = $('#emptyState'), lightSwitch = $('#lightSwitch');
-
+const STORAGE_KEY = 'hagar-mostafa-memory-wall-v1';
+const MESSAGE_STORAGE_KEY = 'hagar-mostafa-private-messages-v1';
+const SECRET_MESSAGE_STORAGE_KEY = 'hagar-secret-message-v1';
+const loginButton = document.querySelector('#loginButton');
+const messagesButton = document.querySelector('#messagesButton');
+const addButton = document.querySelector('#addMemoryButton');
+const loginModal = document.querySelector('#loginModal');
+const memoryModal = document.querySelector('#memoryModal');
+const memoryWall = document.querySelector('#memoryWall');
+const emptyState = document.querySelector('#emptyState');
+const lightSwitch = document.querySelector('#lightSwitch');
+const identityModal = document.querySelector('#identityModal');
+const messagesModal = document.querySelector('#messagesModal');
+const composeModal = document.querySelector('#composeModal');
+const inboxModal = document.querySelector('#inboxModal');
+const secretPasswordModal = document.querySelector('#secretPasswordModal');
+const secretMessageModal = document.querySelector('#secretMessageModal');
 let currentPerson = sessionStorage.getItem('memoryWallPerson') || '';
 let loggedIn = sessionStorage.getItem('memoryWallLoggedIn') === 'true' && Boolean(currentPerson);
-const isHagar = () => currentPerson === 'Hagar';
 
-/* ---------- أدوات صغيرة ---------- */
-const readJSON = key => { try { return JSON.parse(localStorage.getItem(key)) ?? []; } catch { return []; } };
-const readMemories = () => readJSON(LS.memories);
-const readMessages = () => readJSON(LS.messages);
-const otherPerson = () => (isHagar() ? 'Mostafa' : 'Hagar');
-const personLabel = person => (person === 'Hagar' ? 'هاجر' : 'مصطفى');
-const unreadCount = () => readMessages().filter(m => m.to === currentPerson && !m.read).length;
-const isDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value || '');
-const dateLabel = value => new Intl.DateTimeFormat('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${value}T12:00:00`));
-const todayLocal = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
-const escapeHtml = text => { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; };
-const uid = () => crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-const safeUrl = url => typeof url === 'string' && /^(https:\/\/|data:(image|video)\/)/.test(url);
-const cloudUrl = (url, transform) => (url.includes('res.cloudinary.com') && url.includes('/upload/') ? url.replace('/upload/', `/upload/${transform}/`) : url);
-const thumbUrl = url => cloudUrl(url, 'f_auto,q_auto,w_480,c_limit');
-const fullUrl = url => cloudUrl(url, 'f_auto,q_auto,w_1600,c_limit');
-
-function toast(message) {
-  const box = $('#toast');
-  box.textContent = message; box.classList.add('show');
-  clearTimeout(toast.timer); toast.timer = setTimeout(() => box.classList.remove('show'), 3800);
+const demoMemories = [];
+function readMemories() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? demoMemories; } catch { return demoMemories; } }
+function saveMemories(memories) {
+localStorage.setItem(STORAGE_KEY, JSON.stringify(memories));
+return firebaseSessionReady.then(() => setDoc(memoriesDocument, { groups:memories, updatedAt:Date.now() }, { merge:true }));
 }
-function askConfirm(message) {
-  return new Promise(resolve => {
-    $('#confirmText').textContent = message;
-    $('#confirmYes').onclick = () => { resolve(true); confirmModal.close(); };
-    $('#confirmNo').onclick = () => confirmModal.close();
-    confirmModal.onclose = () => resolve(false);
-    confirmModal.showModal();
+function readMessages() { try { return JSON.parse(localStorage.getItem(MESSAGE_STORAGE_KEY)) ?? []; } catch { return []; } }
+function saveMessages(messages) {
+localStorage.setItem(MESSAGE_STORAGE_KEY, JSON.stringify(messages));
+return firebaseSessionReady.then(() => setDoc(messagesDocument, { items:messages, updatedAt:Date.now() }, { merge:true }));
+}
+function otherPerson() { return currentPerson === 'Hagar' ? 'Mostafa' : 'Hagar'; }
+function personLabel(person) { return person === 'Hagar' ? 'هاجر' : 'مصطفى'; }
+function unreadCount() { return readMessages().filter(message => message.to === currentPerson && !message.read).length; }
+function dateLabel(value) { return new Intl.DateTimeFormat('ar-EG', { day:'numeric', month:'long', year:'numeric' }).format(new Date(`${value}T12:00:00`)); }
+function escapeHtml(text) { const d=document.createElement('div'); d.textContent=text; return d.innerHTML; }
+function readFileAsDataUrl(file) { return new Promise((resolve,reject)=> { const reader=new FileReader(); reader.onload=()=>resolve(reader.result); reader.onerror=reject; reader.readAsDataURL(file); }); }
+function compressImage(file) { return new Promise((resolve,reject) => { const image = new Image(); const source = URL.createObjectURL(file); image.onload = () => { const maxEdge=1100; const scale=Math.min(1,maxEdge/Math.max(image.naturalWidth,image.naturalHeight)); const canvas=document.createElement('canvas'); canvas.width=Math.max(1,Math.round(image.naturalWidth*scale)); canvas.height=Math.max(1,Math.round(image.naturalHeight*scale)); const context=canvas.getContext('2d'); context.drawImage(image,0,0,canvas.width,canvas.height); URL.revokeObjectURL(source); resolve(canvas.toDataURL('image/jpeg',.74)); }; image.onerror=()=>{ URL.revokeObjectURL(source); reject(new Error('image-read-failed')); }; image.src=source; }); }
+async function uploadToCloudinary(file, type) {
+const formData=new FormData();
+formData.append('file',file);
+formData.append('upload_preset',CLOUDINARY_UPLOAD_PRESET);
+formData.append('folder','hagar-mostafa');
+const response=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${type}/upload`,{method:'POST',body:formData});
+const result=await response.json();
+if (!response.ok || !result.secure_url) throw new Error(result.error?.message || 'cloud-upload-failed');
+return result.secure_url;
+}
+async function fileToItem(file) { const type=file.type.startsWith('video/')?'video':'image'; const data=await uploadToCloudinary(file,type); return {type,data,name:file.name.replace(/\.[^/.]+$/, '').slice(0,28)}; }
+
+// Temporary reconciliation page: automatically disappears after 13 September 2026, Cairo time.
+const APOLOGY_ENDS_AT = new Date('2026-09-13T23:59:59+03:00').getTime();
+const apologyGate=document.querySelector('#apologyGate');
+function showApologyStep(name) { document.querySelectorAll('[data-apology-step]').forEach(step => step.hidden=step.dataset.apologyStep!==name); }
+function setupApologyGate() {
+const replyInboxFab=document.querySelector('#replyInboxFab');
+const replyModal=document.querySelector('#apologyReplyModal');
+  const replyPasswordModal=document.querySelector('#apologyReplyPasswordModal');
+let savedReply='';
+onSnapshot(apologyDocument,snapshot=>{ const data=snapshot.data(); savedReply=data?.reply || ''; replyInboxFab.hidden=!data?.signed; });
+replyInboxFab.addEventListener('click',()=>{
+    document.querySelector('#apologyReplyPassword').value=''; document.querySelector('#apologyReplyPasswordError').textContent='';
+    replyPasswordModal.showModal();
   });
+  document.querySelector('#openApologyReply').addEventListener('click',()=>{
+    if (document.querySelector('#apologyReplyPassword').value!=='هجورتي') { document.querySelector('#apologyReplyPasswordError').textContent='الباسوورد مش صح.'; return; }
+document.querySelector('#apologyReplyNote').textContent=savedReply || 'لسه مفيش رد محفوظ.';
+    replyModal.showModal();
+    replyPasswordModal.close(); replyModal.showModal();
+});
+if (Date.now() >= APOLOGY_ENDS_AT) { apologyGate.hidden=true; return; }
+document.querySelector('#giftArrived').addEventListener('click',()=>showApologyStep('letter'));
+document.querySelector('#giftNotArrived').addEventListener('click',()=>showApologyStep('liar'));
+document.querySelector('#giftActuallyArrived').addEventListener('click',()=>showApologyStep('letter'));
+document.querySelector('#replyToLetter').addEventListener('click',()=>showApologyStep('reply'));
+document.querySelector('#sendReply').addEventListener('click',()=>{
+const reply=document.querySelector('#apologyReply').value.trim();
+if (!reply) { document.querySelector('#replyError').textContent='اكتبي ردك الأول.'; return; }
+document.querySelector('#replyError').textContent=''; showApologyStep('sign');
+});
+document.querySelector('#confirmNotAngry').addEventListener('click',async()=>{
+const signature=document.querySelector('#apologySignature').value.trim();
+const error=document.querySelector('#signatureError');
+if (signature!=='هاجر') { error.textContent='اكتبي الإمضاء صح يا هجورة.'; return; }
+error.textContent='جاري إرسال الرسالة…';
+try {
+await firebaseSessionReady;
+const reply=document.querySelector('#apologyReply').value.trim();
+await setDoc(apologyDocument,{ reply, signed:true, signedAt:Date.now() });
+error.textContent=''; showApologyStep('done');
+} catch { error.textContent='الرسالة ما اتحفظتش، جربي تاني.'; }
+});
 }
-function errorText(error, fallback) {
-  const code = error?.code || '';
-  if (code === 'permission-denied' || code.startsWith('auth/')) return 'Firebase مانع العملية: فعّلوا Anonymous في Authentication وانشروا Rules بتاعة Firestore.';
-  if (/size|large/i.test(error?.message || '')) return 'حجم أحد الملفات كبير. جرّبوا ملف أصغر.';
-  if (code === 'unavailable' || !navigator.onLine) return 'مفيش إنترنت دلوقتي. جرّبوا تاني لما يرجع.';
-  return fallback;
-}
+function updateLoveCounter() { const firstDay = new Date(2026, 7, 15); const today = new Date(); firstDay.setHours(0,0,0,0); today.setHours(0,0,0,0); const days = Math.max(0, Math.floor((today - firstDay) / 86400000)); document.querySelector('#daysTogether').textContent = new Intl.NumberFormat('ar-EG').format(days); document.querySelector('#daysWord').textContent = days >= 3 && days <= 10 ? 'أيام' : 'يوم'; }
 
-/* ---------- الحفظ: transaction علشان محدش يمسح تغييرات التاني ---------- */
-async function mutate(ref, field, storageKey, change) {
-  await firebaseSessionReady;
-  const next = await runTransaction(database, async tx => {
-    const snap = await tx.get(ref);
-    const value = change(snap.data()?.[field] ?? []);
-    tx.set(ref, { [field]: value, updatedAt: Date.now() }, { merge: true });
-    return value;
-  });
-  localStorage.setItem(storageKey, JSON.stringify(next));
-  return next;
-}
-const mutateMemories = change => mutate(memoriesDocument, 'groups', LS.memories, change).then(renderWall);
-const mutateMessages = change => mutate(messagesDocument, 'items', LS.messages, change).then(updateUnreadUI);
-
-/* ---------- رفع الملفات ---------- */
-function prepareFile(file) {
-  if (!file.type.startsWith('image/') || file.type === 'image/gif') return Promise.resolve(file);
-  return new Promise(resolve => {
-    const image = new Image(), source = URL.createObjectURL(file);
-    image.onload = () => {
-      const scale = Math.min(1, 2000 / Math.max(image.naturalWidth, image.naturalHeight));
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(image.naturalWidth * scale); canvas.height = Math.round(image.naturalHeight * scale);
-      canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(source);
-      canvas.toBlob(blob => resolve(blob || file), 'image/jpeg', .85);
-    };
-    image.onerror = () => { URL.revokeObjectURL(source); resolve(file); };
-    image.src = source;
-  });
-}
-async function fileToItem(file) {
-  const type = file.type.startsWith('video/') ? 'video' : 'image';
-  const body = new FormData();
-  body.append('file', type === 'image' ? await prepareFile(file) : file, file.name);
-  body.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-  body.append('folder', 'hagar-mostafa');
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${type}/upload`, { method: 'POST', body });
-  const result = await response.json();
-  if (!response.ok || !result.secure_url) throw new Error(result.error?.message || 'cloud-upload-failed');
-  return { type, data: result.secure_url, name: file.name.replace(/\.[^/.]+$/, '').slice(0, 28) };
-}
-
-function updateLoveCounter() {
-  const firstDay = new Date(2026, 7, 15), today = new Date();
-  firstDay.setHours(0, 0, 0, 0); today.setHours(0, 0, 0, 0);
-  const days = Math.max(0, Math.floor((today - firstDay) / 86400000));
-  $('#daysTogether').textContent = new Intl.NumberFormat('ar-EG').format(days);
-  $('#daysWord').textContent = days >= 3 && days <= 10 ? 'أيام' : 'يوم';
-}
-
-/* ---------- الحبل واللمبات ---------- */
-const waveY = x => 20 + Math.sin((x / 118) * Math.PI * 2) * 5.4 + Math.sin((x / 236) * Math.PI * 2 + .7) * 1.8;
-let ropeObserver = null;
-const videoObserver = new IntersectionObserver(entries => entries.forEach(entry => {
-  if (entry.isIntersecting) entry.target.play().catch(() => {}); else entry.target.pause();
-}), { threshold: .25 });
-
-function syncRope(row) {
-  const clips = row.querySelector('.clips'), rope = row.querySelector('.rope');
-  rope.style.transform = `translateX(${-clips.scrollLeft}px) rotate(${row.style.getPropertyValue('--tilt') || '0deg'})`;
-}
-function layoutRope(row) {
-  const clips = row.querySelector('.clips'), rope = row.querySelector('.rope');
-  const width = Math.max(clips.scrollWidth, clips.clientWidth);
-  row.style.setProperty('--rope-width', `${width}px`);
-  row.classList.toggle('scrollable', clips.scrollWidth > clips.clientWidth + 4);
-  let path = `M 0 ${waveY(0).toFixed(1)}`;
-  for (let x = 5; x <= width; x += 5) path += ` L ${x} ${waveY(x).toFixed(1)}`;
-  const count = Math.max(5, Math.ceil(width / 165));
-  let lights = '';
-  for (let i = 0; i < count; i++) {
-    const x = width * ((i + .5) / count), left = `${((x / width) * 100).toFixed(3)}%`, y = waveY(x);
-    lights += `<span class="light-cast" style="left:${left};right:auto;top:${(y + 15).toFixed(1)}px"></span><span class="bulb" style="left:${left};right:auto;top:${(y + 6).toFixed(1)}px;transform:translateX(-50%)"></span>`;
-  }
-  rope.innerHTML = `<svg viewBox="0 0 ${width} 45" preserveAspectRatio="xMinYMid meet" aria-hidden="true"><path d="${path}"/></svg>${lights}`;
-  clips.querySelectorAll('.memory').forEach(card => {
-    const x = card.offsetLeft + card.offsetWidth / 2;
-    card.style.setProperty('--hang-offset', `${rope.offsetTop + waveY(x) + 20 - (clips.offsetTop + card.offsetTop)}px`);
-  });
-  syncRope(row);
-}
-
-/* ---------- رسم الحيطة (DOM مش innerHTML علشان الأمان) ---------- */
-function buildCard(item, index) {
-  const card = document.createElement('figure');
-  card.className = 'memory';
-  card.dataset.src = item.data; card.dataset.type = item.type === 'video' ? 'video' : 'image';
-  card.style.setProperty('--rotation', `${[-3, 2, -1.5, 3, -2, 1][index % 6]}deg`);
-  if (loggedIn) {
-    const controls = document.createElement('div');
-    controls.className = 'memory-controls';
-    controls.innerHTML = '<button type="button" class="replace-media" title="غيّر الملف" aria-label="غيّر الملف">↻</button><button type="button" class="delete-media" title="امسح الملف" aria-label="امسح الملف">×</button>';
-    card.append(controls);
-  }
-  const wrap = document.createElement('div');
-  wrap.className = 'media-wrap';
-  if (card.dataset.type === 'video') {
-    const video = document.createElement('video');
-    video.src = thumbUrl(item.data); video.muted = true; video.loop = true; video.playsInline = true;
-    video.preload = 'metadata'; video.disablePictureInPicture = true;
-    videoObserver.observe(video); wrap.append(video);
-  } else {
-    const image = document.createElement('img');
-    image.src = thumbUrl(item.data); image.alt = item.name || 'ذكرى جميلة'; image.loading = 'lazy'; image.decoding = 'async'; image.draggable = false;
-    wrap.append(image);
-  }
-  card.append(wrap);
-  return card;
-}
 function renderWall() {
-  ropeObserver?.disconnect(); videoObserver.disconnect();
-  ropeObserver = new ResizeObserver(entries => entries.forEach(entry => layoutRope(entry.target.closest('.memory-row'))));
-  const savedScroll = new Map([...memoryWall.querySelectorAll('.memory-row')].map(r => [r.dataset.date, r.querySelector('.clips')?.scrollLeft || 0]));
-  const memories = readMemories().filter(g => g && isDate(g.date) && Array.isArray(g.items)).sort((a, b) => b.date.localeCompare(a.date));
-  memoryWall.innerHTML = '';
-  emptyState.hidden = memories.length !== 0;
-  memories.forEach((group, groupIndex) => {
-    const items = group.items.filter(item => item && safeUrl(item.data));
-    if (!items.length) return;
-    const row = document.createElement('article');
-    row.className = 'memory-row'; row.dataset.date = group.date;
-    row.style.setProperty('--tilt', groupIndex % 2 ? '.4deg' : '-.35deg');
-    const tag = document.createElement('div'); tag.className = 'date-tag'; tag.textContent = dateLabel(group.date);
-    row.append(tag);
-    if (loggedIn) {
-      const del = document.createElement('button');
-      del.type = 'button'; del.className = 'group-delete'; del.dataset.date = group.date; del.title = 'امسح اليوم ده'; del.textContent = 'مسح اليوم';
-      row.append(del);
-    }
-    const rope = document.createElement('div'); rope.className = 'rope';
-    const clips = document.createElement('div'); clips.className = 'clips';
-    items.forEach((item, i) => clips.append(buildCard(item, i)));
-    row.append(rope, clips);
-    [['‹', -1], ['›', 1]].forEach(([symbol, dir]) => {
-      const arrow = document.createElement('button');
-      arrow.type = 'button'; arrow.className = `row-arrow ${dir < 0 ? 'prev' : 'next'}`; arrow.textContent = symbol;
-      arrow.setAttribute('aria-label', dir < 0 ? 'الصور السابقة' : 'الصور التالية');
-      arrow.addEventListener('click', () => clips.scrollBy({ left: dir * clips.clientWidth * .8, behavior: 'smooth' }));
-      row.append(arrow);
-    });
-    clips.addEventListener('scroll', () => syncRope(row), { passive: true });
-    memoryWall.append(row);
-    if (savedScroll.get(group.date)) clips.scrollLeft = savedScroll.get(group.date);
-    ropeObserver.observe(clips);
-  });
-}
-
-/* سحب الصفوف بالماوس على الكمبيوتر */
-let drag = null, justDragged = false;
-memoryWall.addEventListener('pointerdown', event => {
-  const clips = event.target.closest('.clips');
-  if (!clips || event.pointerType !== 'mouse' || event.button !== 0 || event.target.closest('button')) return;
-  drag = { clips, x: event.clientX, left: clips.scrollLeft, moved: false };
+const memories = readMemories().sort((a,b) => b.date.localeCompare(a.date));
+memoryWall.innerHTML = '';
+emptyState.hidden = memories.length !== 0;
+memories.forEach((group, groupIndex) => {
+const row = document.createElement('article'); row.className = 'memory-row'; row.style.setProperty('--tilt', `${groupIndex % 2 ? '.4deg' : '-.35deg'}`);
+row.innerHTML = `<div class="date-tag">${dateLabel(group.date)}</div>${loggedIn ? `<button class="group-delete" type="button" data-date="${group.date}" title="امسح اليوم ده">مسح اليوم</button>` : ''}<div class="rope"></div><div class="clips"></div>`;
+const clips = row.querySelector('.clips');
+group.items.forEach((item, itemIndex) => {
+if (!item || typeof item.data !== 'string' || !item.data.trim()) return;
+const card = document.createElement('figure'); card.className='memory'; card.style.setProperty('--rotation', `${[-3,2,-1.5,3,-2,1][itemIndex % 6]}deg`);
+const safeName = escapeHtml(item.name || 'ذكرى جميلة');
+card.innerHTML = `${loggedIn ? `<div class="memory-controls"><button type="button" class="replace-media" data-date="${group.date}" data-index="${itemIndex}" title="غيّر الملف">↻</button><button type="button" class="delete-media" data-date="${group.date}" data-index="${itemIndex}" title="امسح الملف">×</button></div>` : ''}<div class="media-wrap">${item.type === 'video' ? `<video src="${item.data}" autoplay muted loop playsinline preload="metadata" disablepictureinpicture></video>` : `<img src="${item.data}" alt="${safeName}" loading="lazy">`}</div>`;
+clips.append(card);
 });
-window.addEventListener('pointermove', event => {
-  if (!drag) return;
-  const dx = event.clientX - drag.x;
-  if (Math.abs(dx) > 5) { drag.moved = true; drag.clips.classList.add('dragging'); }
-  if (drag.moved) drag.clips.scrollLeft = drag.left - dx;
+const rope = row.querySelector('.rope');
+const buildContinuousRope = () => {
+const ropeWidth = Math.max(clips.scrollWidth, clips.clientWidth);
+const bulbCount = Math.max(5,Math.ceil(ropeWidth/165)); const waveSize=118; let pathData='M 0 20';
+for (let x=5; x<=ropeWidth; x+=5) { const y=20+Math.sin((x/waveSize)*Math.PI*2)*5.4+Math.sin((x/(waveSize*2))*Math.PI*2+.7)*1.8; pathData+=` L ${x} ${y}`; }
+const lights=Array.from({length:bulbCount},(_,index)=>`<span class="light-cast"></span><span class="bulb"></span>`).join('');
+rope.innerHTML=`<svg viewBox="0 0 ${ropeWidth} 45" preserveAspectRatio="xMinYMid meet" aria-hidden="true"><path d="${pathData}"/></svg>${lights}`;
+const path=rope.querySelector('path'); const totalLength=path.getTotalLength(); const bulbs=[...rope.querySelectorAll('.bulb')]; const casts=[...rope.querySelectorAll('.light-cast')];
+bulbs.forEach((bulb,index) => {
+const targetX=ropeWidth*((index+.5)/bulbs.length); let closest=path.getPointAtLength(0); let smallest=Infinity;
+for (let step=0; step<=420; step++) { const point=path.getPointAtLength(totalLength*step/420); const distance=Math.abs(point.x-targetX); if(distance<smallest) { smallest=distance; closest=point; } }
+const x=`${(closest.x/ropeWidth)*100}%`; const y=`${closest.y+6}px`; bulb.style.left=x; bulb.style.right='auto'; bulb.style.top=y; bulb.style.transform='translateX(-50%)'; casts[index].style.left=x; casts[index].style.right='auto'; casts[index].style.top=`${closest.y+15}px`;
 });
-window.addEventListener('pointerup', () => {
-  if (!drag) return;
-  drag.clips.classList.remove('dragging'); justDragged = drag.moved; drag = null;
-  setTimeout(() => { justDragged = false; }, 0);
+};
+const positionBulbsOnRope = () => {
+if (!rope.querySelector('path')) return;
+const path=rope.querySelector('path'); const totalLength=path.getTotalLength(); const bulbs=[...rope.querySelectorAll('.bulb')]; const casts=[...rope.querySelectorAll('.light-cast')]; const ropeWidth=Math.max(clips.scrollWidth,clips.clientWidth);
+bulbs.forEach((bulb,index) => {
+const targetX=ropeWidth*((index+.5)/bulbs.length); let closest=path.getPointAtLength(0); let smallest=Infinity;
+for (let step=0; step<=420; step++) { const point=path.getPointAtLength(totalLength*step/420); const distance=Math.abs(point.x-targetX); if(distance<smallest) { smallest=distance; closest=point; } }
+const x=`${(closest.x/ropeWidth)*100}%`; bulb.style.left=x; bulb.style.top=`${closest.y+6}px`; casts[index].style.left=x; casts[index].style.top=`${closest.y+15}px`;
 });
-
-/* ---------- عرض الصورة بحجم كبير ---------- */
-let lbItems = [], lbIndex = 0, lbDate = '';
-function showLightbox() {
-  const item = lbItems[lbIndex], stage = $('#lightboxStage');
-  stage.innerHTML = '';
-  let media;
-  if (item.type === 'video') {
-    media = document.createElement('video');
-    media.src = cloudUrl(item.src, 'f_auto,q_auto'); media.controls = true; media.autoplay = true; media.loop = true; media.playsInline = true;
-  } else {
-    media = new Image(); media.src = fullUrl(item.src); media.alt = 'ذكرى';
-  }
-  stage.append(media);
-  $('#lightboxCaption').textContent = `${lbDate} · ${new Intl.NumberFormat('ar-EG').format(lbIndex + 1)} من ${new Intl.NumberFormat('ar-EG').format(lbItems.length)}`;
-  $('#lbPrev').hidden = $('#lbNext').hidden = lbItems.length < 2;
-}
-function stepLightbox(step) { if (lbItems.length < 2) return; lbIndex = (lbIndex + step + lbItems.length) % lbItems.length; showLightbox(); }
-function openLightbox(card) {
-  const row = card.closest('.memory-row'), cards = [...row.querySelectorAll('.memory')];
-  lbItems = cards.map(c => ({ src: c.dataset.src, type: c.dataset.type })); lbIndex = cards.indexOf(card); lbDate = dateLabel(row.dataset.date);
-  showLightbox(); lightbox.showModal();
-}
-$('#lbPrev').addEventListener('click', () => stepLightbox(-1));
-$('#lbNext').addEventListener('click', () => stepLightbox(1));
-lightbox.addEventListener('click', event => { if (event.target.classList.contains('lightbox-card')) lightbox.close(); });
-lightbox.addEventListener('close', () => { $('#lightboxStage').innerHTML = ''; });
-lightbox.addEventListener('keydown', event => { if (event.key === 'ArrowRight') stepLightbox(1); if (event.key === 'ArrowLeft') stepLightbox(-1); });
-let swipeStart = null;
-$('#lightboxStage').addEventListener('pointerdown', event => { swipeStart = event.clientX; });
-$('#lightboxStage').addEventListener('pointerup', event => {
-  if (swipeStart === null) return;
-  const dx = event.clientX - swipeStart; swipeStart = null;
-  if (Math.abs(dx) > 50) stepLightbox(dx < 0 ? 1 : -1);
+};
+const hangMemoriesOnRope = () => {
+const path=rope.querySelector('path'); if (!path) return;
+const totalLength=path.getTotalLength(); const ropeWidth=Math.max(clips.scrollWidth,clips.clientWidth);
+clips.querySelectorAll('.memory').forEach(card => {
+const targetX=card.offsetLeft+(card.offsetWidth/2); let closest=path.getPointAtLength(0); let smallest=Infinity;
+for (let step=0; step<=420; step++) { const point=path.getPointAtLength(totalLength*step/420); const distance=Math.abs(point.x-targetX); if(distance<smallest) { smallest=distance; closest=point; } }
+const desiredTop=rope.offsetTop+closest.y+20; const currentTop=clips.offsetTop+card.offsetTop;
+card.style.setProperty('--hang-offset',`${desiredTop-currentTop}px`);
 });
-
-/* ---------- واجهة الدخول والرسائل ---------- */
-function updateUnreadUI() {
-  const count = loggedIn ? unreadCount() : 0;
-  $('#headerUnread').textContent = count; $('#modalUnread').textContent = count;
+};
+const syncRope = () => {
+row.style.setProperty('--rope-width', `${Math.max(clips.scrollWidth,clips.clientWidth)}px`);
+row.style.setProperty('--rope-shift', `${-clips.scrollLeft}px`);
+// Inline transform wins over the small-screen fallback, so every rope follows its own swipe.
+rope.style.transform=`translateX(${-clips.scrollLeft}px) rotate(${row.style.getPropertyValue('--tilt') || '0deg'})`;
+};
+clips.addEventListener('scroll', syncRope, { passive:true });
+const makeInfiniteStrip = () => {
+const originalCards=[...clips.querySelectorAll('.memory')];
+if (!originalCards.length || clips.clientWidth < 20 || originalCards[0].offsetWidth < 10) return 0;
+let firstCopy;
+// Keep adding identical rounds until one complete round can leave the screen unseen.
+do {
+const copy=originalCards.map(card => card.cloneNode(true));
+if (!firstCopy) firstCopy=copy[0];
+copy.forEach(card => clips.append(card));
+} while (clips.scrollWidth < clips.clientWidth * 3);
+return firstCopy.offsetLeft - originalCards[0].offsetLeft;
+};
+const startInfiniteLoop = loopWidth => {
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || loopWidth < 3) return;
+const direction = groupIndex % 2 === 0 ? -1 : 1;
+let paused=false, lastTime=performance.now();
+clips.style.overflowX='scroll';
+clips.style.scrollBehavior='auto';
+clips.scrollLeft=direction < 0 ? loopWidth : 0;
+const move = now => {
+if (!row.isConnected) return;
+const elapsed=Math.min(40,now-lastTime); lastTime=now;
+if (!paused) {
+clips.scrollLeft += direction * elapsed * .04;
+if (direction > 0 && clips.scrollLeft >= loopWidth) clips.scrollLeft -= loopWidth;
+if (direction < 0 && clips.scrollLeft <= 0) clips.scrollLeft += loopWidth;
 }
+requestAnimationFrame(move);
+};
+clips.addEventListener('pointerdown', () => { paused=true; });
+const resume=() => { paused=false; lastTime=performance.now(); };
+clips.addEventListener('pointerup',resume); clips.addEventListener('pointercancel',resume);
+requestAnimationFrame(move);
+};
+memoryWall.append(row);
+// Manual only: the whole rope and its photos follow the user's swipe.
+requestAnimationFrame(() => { syncRope(); buildContinuousRope(); positionBulbsOnRope(); hangMemoriesOnRope(); });
+});
+}
+function updateUnreadUI() { const count = loggedIn ? unreadCount() : 0; document.querySelector('#headerUnread').textContent = count; document.querySelector('#modalUnread').textContent = count; }
 function updatePersonLanguage() {
-  const f = isHagar();
-  $('#messagesPrompt').textContent = f ? 'حابة تعملي إيه؟' : 'حابب تعمل إيه؟';
-  $('#writeMessageChoice').innerHTML = `<span>✎</span> ${f ? 'اكتبي رسالة' : 'اكتب رسالة'}`;
-  $('#readMessagesChoice').innerHTML = `<span>✉</span> ${f ? 'اقري الرسائل' : 'اقرأ الرسائل'} <b id="modalUnread">0</b>`;
-  addButton.innerHTML = `<span>+</span> ${f ? 'ضيفي ذكرى' : 'ضيف ذكرى'}`;
-  $('#messageText').placeholder = f ? 'اكتبي من قلبك…' : 'اكتب من قلبك…';
-  $('#composeSubmit').textContent = f ? 'ابعتي الرسالة' : 'ابعت الرسالة';
+const isHagar=currentPerson === 'Hagar';
+document.querySelector('#messagesPrompt').textContent=isHagar ? 'حابة تعملي إيه؟' : 'حابب تعمل إيه؟';
+document.querySelector('#writeMessageChoice').innerHTML=`<span>✎</span> ${isHagar ? 'اكتبي رسالة' : 'اكتب رسالة'}`;
+document.querySelector('#readMessagesChoice').innerHTML=`<span>✉</span> ${isHagar ? 'اقري الرسائل' : 'اقرأ الرسائل'} <b id="modalUnread">0</b>`;
+addButton.innerHTML=`<span>+</span> ${isHagar ? 'ضيفي ذكرى' : 'ضيف ذكرى'}`;
 }
-function updateAuthUI() {
-  loginButton.textContent = loggedIn ? 'خروج' : 'دخول';
-  addButton.hidden = !loggedIn; messagesButton.hidden = !loggedIn;
-  updatePersonLanguage(); updateUnreadUI();
-}
+function updateAuthUI() { loginButton.textContent = loggedIn ? 'خروج' : 'دخول'; addButton.hidden = !loggedIn; messagesButton.hidden = !loggedIn; document.querySelector('#secretMessageChoice').hidden = currentPerson !== 'Hagar'; updatePersonLanguage(); updateUnreadUI(); }
 
-loginButton.addEventListener('click', () => {
-  if (loggedIn) {
-    loggedIn = false; currentPerson = '';
-    sessionStorage.removeItem('memoryWallLoggedIn'); sessionStorage.removeItem('memoryWallPerson');
-    updateAuthUI(); renderWall();
-  } else loginModal.showModal();
+loginButton.addEventListener('click', () => { if (loggedIn) { loggedIn=false; currentPerson=''; sessionStorage.removeItem('memoryWallLoggedIn'); sessionStorage.removeItem('memoryWallPerson'); updateAuthUI(); renderWall(); } else loginModal.showModal(); });
+document.querySelector('#loginForm').addEventListener('submit', (event) => {
+event.preventDefault(); const user=document.querySelector('#username').value.trim().toLowerCase(); const pass=document.querySelector('#password').value;
+if (user === 'hagarandmostafa' && pass === '1508') { loginModal.close(); event.target.reset(); document.querySelector('#loginError').textContent=''; identityModal.showModal(); } else document.querySelector('#loginError').textContent='اسم المستخدم أو كلمة المرور مش صح.';
 });
-$('#loginForm').addEventListener('submit', event => {
-  event.preventDefault();
-  const user = $('#username').value.trim().toLowerCase(), pass = $('#password').value;
-  if (user === 'hagarandmostafa' && pass === '1508') {
-    loginModal.close(); event.target.reset(); $('#loginError').textContent = ''; identityModal.showModal();
-  } else $('#loginError').textContent = 'اسم المستخدم أو كلمة المرور مش صح.';
-});
-identityModal.addEventListener('cancel', event => event.preventDefault());
-document.querySelectorAll('.identity-choice[data-person]').forEach(button => button.addEventListener('click', () => {
-  currentPerson = button.dataset.person; loggedIn = true;
-  sessionStorage.setItem('memoryWallLoggedIn', 'true'); sessionStorage.setItem('memoryWallPerson', currentPerson);
-  identityModal.close(); updateAuthUI(); renderWall();
-  if (unreadCount() > 0) messagesModal.showModal();
-}));
+document.querySelectorAll('.identity-choice').forEach(button => button.addEventListener('click', () => { currentPerson=button.dataset.person; loggedIn=true; sessionStorage.setItem('memoryWallLoggedIn','true'); sessionStorage.setItem('memoryWallPerson',currentPerson); identityModal.close(); updateAuthUI(); renderWall(); messagesModal.showModal(); }));
 messagesButton.addEventListener('click', () => { updateUnreadUI(); messagesModal.showModal(); });
-$('#addMediaFromMessages').addEventListener('click', () => { messagesModal.close(); addButton.click(); });
-document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => $(`#${button.dataset.close}`).close()));
-
-$('#writeMessageChoice').addEventListener('click', () => {
-  messagesModal.close();
-  $('#recipientLine').textContent = `الرسالة دي هتوصل ${isHagar() ? 'لمصطفى' : 'لهاجر'} بس.`;
-  $('#messageText').value = ''; $('#messageError').textContent = ''; composeModal.showModal();
-});
-$('#composeForm').addEventListener('submit', async event => {
-  event.preventDefault();
-  const text = $('#messageText').value.trim(), error = $('#messageError'), button = $('#composeSubmit');
-  if (button.disabled) return;
-  if (!text) { error.textContent = isHagar() ? 'اكتبي رسالة الأول.' : 'اكتب رسالة الأول.'; return; }
-  const message = { id: uid(), from: currentPerson, to: otherPerson(), text, createdAt: new Date().toISOString(), read: false };
-  error.textContent = 'جاري إرسال الرسالة…'; button.disabled = true;
-  try {
-    await mutateMessages(list => [...list, message]);
-    error.textContent = ''; composeModal.close(); messagesModal.showModal();
-  } catch (sendError) {
-    error.textContent = errorText(sendError, 'الرسالة ما اتبعتتش. اتأكد من الإنترنت وجرب تاني.');
-  } finally { button.disabled = false; }
-});
-$('#readMessagesChoice').addEventListener('click', () => {
-  messagesModal.close();
-  const received = readMessages().filter(m => m.to === currentPerson).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  if (received.some(m => !m.read)) mutateMessages(list => list.map(m => (m.to === currentPerson && !m.read ? { ...m, read: true } : m))).catch(() => {});
-  $('#inboxSubheading').textContent = received.length ? `رسايل متبعتة لـ ${personLabel(currentPerson)}.` : `لسه مفيش رسايل — ${personLabel(otherPerson())} يقدر يبعتلك رسالة.`;
-  $('#inboxList').innerHTML = received.length
-    ? received.map(m => `<article class="message-note"><small>من ${personLabel(m.from)} · ${new Intl.DateTimeFormat('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(m.createdAt))}</small><p>${escapeHtml(m.text).replace(/\n/g, '<br>')}</p></article>`).join('')
-    : '<p class="no-messages">صندوق الرسايل مستني أول كلمة حلوة. ♥</p>';
-  inboxModal.showModal();
-});
-
-/* ---------- إضافة ذكرى ---------- */
-const uploadBoxDefault = 'اضغطوا هنا لاختيار الملفات <small>ينفع تختاروا أكتر من صورة أو فيديو.</small>';
-addButton.addEventListener('click', () => {
-  $('#memoryDate').value = todayLocal(); $('#uploadBox').innerHTML = uploadBoxDefault; $('#memoryError').textContent = '';
-  memoryModal.showModal();
-});
-$('#memoryFiles').addEventListener('change', event => {
-  const n = event.target.files.length;
-  $('#uploadBox').innerHTML = n ? `تم اختيار ${n} ملف ✨ <small>اضغطوا لو عايزين تغيّروهم.</small>` : uploadBoxDefault;
-});
-$('#memoryForm').addEventListener('submit', async event => {
-  event.preventDefault();
-  const form = event.target, button = $('#memorySubmit'), error = $('#memoryError');
-  if (button.disabled) return;
-  const date = $('#memoryDate').value, files = [...$('#memoryFiles').files];
-  error.className = 'form-error';
-  if (!isDate(date) || !files.length) { error.textContent = 'اختاروا التاريخ والملفات الأول.'; return; }
-  const label = button.textContent; let done = 0;
-  const progress = () => { error.className = 'form-error info'; error.textContent = `جاري الرفع… ${done} من ${files.length}`; };
-  button.disabled = true; button.textContent = 'جاري الرفع…'; progress();
-  try {
-    const items = await Promise.all(files.map(file => fileToItem(file).then(item => { done++; progress(); return item; })));
-    await mutateMemories(all => {
-      const group = all.find(g => g.date === date);
-      if (group) { group.items.push(...items); return all; }
-      return [...all, { date, items }];
-    });
-    memoryModal.close(); form.reset(); error.textContent = '';
-  } catch (saveError) {
-    error.className = 'form-error';
-    error.textContent = errorText(saveError, 'حصلت مشكلة أثناء رفع أو حفظ الملفات. جرّبوا تاني.');
-  } finally { button.disabled = false; button.textContent = label; }
-});
-
-/* ---------- مسح وتغيير الذكريات ---------- */
-memoryWall.addEventListener('click', async event => {
-  if (justDragged) return;
-  const button = event.target.closest('button'), card = event.target.closest('.memory');
-  if (!button) { if (card) openLightbox(card); return; }
-  if (!loggedIn || button.classList.contains('row-arrow')) return;
-  try {
-    if (button.classList.contains('group-delete')) {
-      const date = button.dataset.date;
-      if (await askConfirm('متأكدين إنكم عايزين تمسحوا اليوم ده بكل صوره وفيديوهاته؟')) await mutateMemories(all => all.filter(g => g.date !== date));
-      return;
-    }
-    if (!card) return;
-    const date = card.closest('.memory-row').dataset.date, src = card.dataset.src;
-    if (button.classList.contains('delete-media')) {
-      if (await askConfirm('تمسحوا الذكرى دي؟')) await mutateMemories(all => all.map(g => (g.date === date ? { ...g, items: g.items.filter(i => i.data !== src) } : g)).filter(g => g.items.length));
-    } else if (button.classList.contains('replace-media')) {
-      const picker = document.createElement('input');
-      picker.type = 'file'; picker.accept = 'image/*,video/*';
-      picker.onchange = async () => {
-        const file = picker.files[0]; if (!file) return;
-        try {
-          toast('جاري رفع الملف…');
-          const item = await fileToItem(file);
-          await mutateMemories(all => all.map(g => (g.date === date ? { ...g, items: g.items.map(i => (i.data === src ? item : i)) } : g)));
-          toast('اتغيّر ✨');
-        } catch (replaceError) { toast(errorText(replaceError, 'حصلت مشكلة أثناء تغيير الملف.')); }
-      };
-      picker.click();
-    }
-  } catch (actionError) { toast(errorText(actionError, 'العملية ما تمتش. جرّبوا تاني.')); }
-});
-
-/* ---------- الأنوار ---------- */
-function setLights(on, save) {
-  document.body.classList.toggle('lights-on', on);
-  lightSwitch.setAttribute('aria-pressed', String(on));
-  lightSwitch.setAttribute('aria-label', on ? 'اطفي الأنوار' : 'شغّل الأنوار');
-  if (save) localStorage.setItem(LS.lights, on ? '1' : '0');
+document.querySelector('#addMediaFromMessages').addEventListener('click', () => { messagesModal.close(); addButton.click(); });
+document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => document.querySelector(`#${button.dataset.close}`).close()));
+document.querySelector('#writeMessageChoice').addEventListener('click', () => { messagesModal.close(); document.querySelector('#recipientLine').textContent = `الرسالة دي هتوصل لمصطفى بس.`; if (otherPerson()==='Hagar') document.querySelector('#recipientLine').textContent='الرسالة دي هتوصل لهاجر بس.'; document.querySelector('#messageText').value=''; document.querySelector('#messageError').textContent=''; composeModal.showModal(); });
+document.querySelector('#composeForm').addEventListener('submit', async event => {
+event.preventDefault();
+const text=document.querySelector('#messageText').value.trim();
+const error=document.querySelector('#messageError');
+if (!text) { error.textContent='اكتب رسالة الأول.'; return; }
+error.textContent='جاري إرسال الرسالة…';
+const messages=readMessages();
+messages.push({ id:crypto.randomUUID(), from:currentPerson, to:otherPerson(), text, createdAt:new Date().toISOString(), read:false });
+try {
+await saveMessages(messages);
+error.textContent='';
+composeModal.close(); updateUnreadUI(); messagesModal.showModal();
+} catch (sendError) {
+error.textContent=sendError?.code==='permission-denied' || sendError?.code?.startsWith('auth/') ? 'Firebase مانع الإرسال: فعّل Anonymous وانشر Rules بتاعة Firestore.' : 'الرسالة ما اتبعتتش. تأكد من الإنترنت وجرب تاني.';
 }
-lightSwitch.addEventListener('click', () => setLights(!document.body.classList.contains('lights-on'), true));
-const savedLights = localStorage.getItem(LS.lights), hour = new Date().getHours();
-setLights(savedLights === null ? (hour >= 19 || hour < 5) : savedLights === '1', false);
+});
+document.querySelector('#readMessagesChoice').addEventListener('click', () => { messagesModal.close(); const messages=readMessages(); const received=messages.filter(message => message.to===currentPerson).sort((a,b)=>b.createdAt.localeCompare(a.createdAt)); messages.forEach(message => { if (message.to===currentPerson) message.read=true; }); saveMessages(messages); document.querySelector('#inboxSubheading').textContent = received.length ? `رسايل متبعتة لـ ${personLabel(currentPerson)}.` : `لسه مفيش رسايل — ${personLabel(otherPerson())} يقدر يبعتلك رسالة.`; document.querySelector('#inboxList').innerHTML = received.length ? received.map(message => `<article class="message-note"><small>من ${personLabel(message.from)} · ${new Intl.DateTimeFormat('ar-EG',{dateStyle:'medium',timeStyle:'short'}).format(new Date(message.createdAt))}</small><p>${escapeHtml(message.text).replace(/\n/g,'<br>')}</p></article>`).join('') : '<p class="no-messages">صندوق الرسايل مستني أول كلمة حلوة. ♥</p>'; updateUnreadUI(); inboxModal.showModal(); });
+document.querySelector('#secretMessageChoice').addEventListener('click', () => { if (currentPerson !== 'Hagar') return; messagesModal.close(); document.querySelector('#secretPassword').value=''; document.querySelector('#secretPasswordError').textContent=''; secretPasswordModal.showModal(); });
+document.querySelector('#secretPasswordForm').addEventListener('submit', event => { event.preventDefault(); if (document.querySelector('#secretPassword').value !== 'mostafaloveshagar') { document.querySelector('#secretPasswordError').textContent='متحاوليش طالما أنا مقولتلكيش الباسوورد.'; return; } const defaultLetter='صباح العسل \nبما اني قولتلك ع الباسوورد يبقى اكيد قولتلك اني بحبك        .\nف بالمرة حابب احكيلك اني من اول لحظة كلمتك وانا مشدودلك اكتر من حاجة حصلتلي ف حياتي وفضلي اعجابي بيكي يزيد لحد اول بوم شوفتك ف الحقيقة لحظتها انبهرت جدا ان ممكن يكون في بنت بالجمال ده وبعد ما خرجنا وروحتك كنت ساعتها فعلا عرفت اني بحبك بجد رغم المدة القصيرة اللي عرفتك فيها بس ده اللي حصل محدش ليه ع قلبه سلطان بقى  '; const letter=defaultLetter; localStorage.setItem(SECRET_MESSAGE_STORAGE_KEY,letter); document.querySelector('#secretLetterContent').innerHTML=escapeHtml(letter).replace(/\n/g,'<br>'); const envelope=document.querySelector('#secretMessageModal .secret-envelope'); envelope.classList.remove('letter-ready'); secretPasswordModal.close(); secretMessageModal.showModal(); setTimeout(() => envelope.classList.add('letter-ready'),3000); });
+addButton.addEventListener('click', () => { document.querySelector('#memoryDate').value = new Date().toISOString().slice(0,10); document.querySelector('#uploadBox').innerHTML='اضغطوا هنا لاختيار الملفات <small>ينفع تختاروا أكتر من صورة أو فيديو.</small>'; memoryModal.showModal(); });
+document.querySelector('#memoryFiles').addEventListener('change', (event) => { const n=event.target.files.length; document.querySelector('#uploadBox').innerHTML = n ? `تم اختيار ${n} ملف ✨ <small>اضغطوا لو عايزين تغيّروهم.</small>` : 'اضغطوا هنا لاختيار الملفات <small>ينفع تختاروا أكتر من صورة أو فيديو.</small>'; });
+document.querySelector('#memoryForm').addEventListener('submit', async (event) => {
+event.preventDefault(); const date=document.querySelector('#memoryDate').value; const files=[...document.querySelector('#memoryFiles').files]; const error=document.querySelector('#memoryError'); error.textContent='';
+if (!date || !files.length) { error.textContent='اختاروا التاريخ والملفات الأول.'; return; }
+try { const items = await Promise.all(files.map(fileToItem)); const all=readMemories(); const existing=all.find(group=>group.date===date); if(existing) existing.items.push(...items); else all.push({date,items}); await saveMemories(all); renderWall(); memoryModal.close(); event.target.reset(); } catch (saveError) { error.textContent=saveError?.code==='permission-denied' || saveError?.code?.startsWith('auth/') ? 'Firebase مانع الحفظ: فعّلوا Anonymous في Authentication وانشروا Rules بتاعة Firestore.' : saveError?.name==='QuotaExceededError' ? 'مساحة الحفظ على المتصفح قربت تتملي. جرّبوا صور أقل أو أصغر.' : 'حصلت مشكلة أثناء رفع أو حفظ الملفات. جرّبوا تاني.'; }
+});
+memoryWall.addEventListener('click', async (event) => {
+const button = event.target.closest('button'); if (!button || !loggedIn) return;
+const all = readMemories(); const date = button.dataset.date;
+if (button.classList.contains('group-delete')) { if (!confirm('متأكدين إنكم عايزين تمسحوا اليوم ده بكل صوره وفيديوهاته؟')) return; saveMemories(all.filter(group => group.date !== date)); renderWall(); return; }
+const group = all.find(entry => entry.date === date); const index = Number(button.dataset.index); if (!group || Number.isNaN(index)) return;
+if (button.classList.contains('delete-media')) { if (!confirm('تمسحوا الذكرى دي؟')) return; group.items.splice(index,1); if (!group.items.length) all.splice(all.indexOf(group),1); saveMemories(all); renderWall(); return; }
+if (button.classList.contains('replace-media')) { const picker=document.createElement('input'); picker.type='file'; picker.accept='image/*,video/*'; picker.onchange=async()=> { const file=picker.files[0]; if (!file) return; try { group.items[index]=await fileToItem(file); saveMemories(all); renderWall(); } catch { alert('حصلت مشكلة أثناء تغيير الملف.'); } }; picker.click(); }
+});
+lightSwitch.addEventListener('click', () => { const on=document.body.classList.toggle('lights-on'); lightSwitch.setAttribute('aria-pressed',on); lightSwitch.setAttribute('aria-label',on?'اطفي الأنوار':'شغّل الأنوار'); });
+onSnapshot(memoriesDocument, snapshot => {
+const groups=snapshot.data()?.groups;
+if (!Array.isArray(groups)) return;
+localStorage.setItem(STORAGE_KEY,JSON.stringify(groups));
+renderWall();
+}, error => console.warn('Could not read memories from Firebase:', error));
+onSnapshot(messagesDocument, snapshot => {
+const items=snapshot.data()?.items;
+if (!Array.isArray(items)) return;
+localStorage.setItem(MESSAGE_STORAGE_KEY,JSON.stringify(items));
+updateUnreadUI();
+}, error => console.warn('Could not read messages from Firebase:', error));
 
-/* ---------- المزامنة اللحظية (بعد ما الجلسة تجهز) ---------- */
-firebaseSessionReady.then(() => {
-  onSnapshot(memoriesDocument, snapshot => {
-    const groups = snapshot.data()?.groups;
-    if (!Array.isArray(groups)) return;
-    const incoming = JSON.stringify(groups);
-    if (incoming === JSON.stringify(readMemories())) return;
-    localStorage.setItem(LS.memories, incoming); renderWall();
-  }, error => console.warn('Could not read memories from Firebase:', error));
-  onSnapshot(messagesDocument, snapshot => {
-    const items = snapshot.data()?.items;
-    if (!Array.isArray(items)) return;
-    localStorage.setItem(LS.messages, JSON.stringify(items)); updateUnreadUI();
-  }, error => console.warn('Could not read messages from Firebase:', error));
-}).catch(() => {});
-
-updateAuthUI(); renderWall(); updateLoveCounter();
+setupApologyGate();
+updateAuthUI(); renderWall();
+updateLoveCounter();
