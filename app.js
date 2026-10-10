@@ -221,7 +221,7 @@ document.querySelector('#readMessagesChoice').innerHTML=`<span>✉</span> ${isHa
 addButton.innerHTML=`<span>+</span> ${isHagar ? 'ضيفي ذكرى' : 'ضيف ذكرى'}`;
 }
 function updateAuthUI() { loginButton.textContent = loggedIn ? 'خروج' : 'دخول'; addButton.hidden = !loggedIn; messagesButton.hidden = !loggedIn; document.querySelector('#secretMessageChoice').hidden = currentPerson !== 'Hagar'; updatePersonLanguage(); updateUnreadUI(); }
-$('#boothLink').hidden = !loggedIn;
+
 loginButton.addEventListener('click', () => { if (loggedIn) { loggedIn=false; currentPerson=''; sessionStorage.removeItem('memoryWallLoggedIn'); sessionStorage.removeItem('memoryWallPerson'); updateAuthUI(); renderWall(); } else loginModal.showModal(); });
 document.querySelector('#loginForm').addEventListener('submit', (event) => {
 event.preventDefault(); const user=document.querySelector('#username').value.trim().toLowerCase(); const pass=document.querySelector('#password').value;
