@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>أماكن نفسنا نروحها سوا</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#f3dde3" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%88%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ============ الألوان (غيّروها من هنا) ============ */
+    :root {
+      --bg: #f5e1e7;
+      --bg-deep: #ecc9d5;
+      --paper: #fffaf6;
+      --ink: #4b2335;
+      --soft: #8b5f70;
+      --rose: #d4577f;
+      --rose-deep: #a93560;
+      --line: #d9a9b9;
+      --stamp: #b3243f;
+      --shadow: rgba(120, 40, 70, .24);
+      --glow: transparent;
+      --font-title: 'Marhey', 'Tajawal', system-ui, sans-serif;
+      --font-body: 'Tajawal', system-ui, sans-serif;
+    }
+    body.lights-on {
+      --bg: #1f1322;
+      --bg-deep: #2a1830;
+      --paper: #2e1c35;
+      --ink: #fbe7ee;
+      --soft: #c9a1b3;
+      --rose: #ff7da6;
+      --rose-deep: #ff9fbd;
+      --line: #6a3f55;
+      --stamp: #ff6f8e;
+      --shadow: rgba(0, 0, 0, .5);
+      --glow: rgba(255, 150, 190, .22);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; min-height: 100vh;
+      font-family: var(--font-body); color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 8%, var(--glow), transparent 38%),
+        radial-gradient(circle at 88% 92%, var(--glow), transparent 40%),
+        linear-gradient(180deg, var(--bg), var(--bg-deep));
+      background-attachment: fixed;
+      transition: background .5s, color .4s;
+    }
+    button, input, textarea, select { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 3px solid var(--rose); outline-offset: 3px; }
+    [hidden] { display: none !important; }
+
+    /* ============ الهيدر ============ */
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 12px clamp(14px, 4vw, 40px);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px dashed var(--line);
+    }
+    .brand { font-family: var(--font-title); font-weight: 700; font-size: 1.15rem; color: var(--rose-deep); text-decoration: none; }
+    .brand span { color: var(--rose); }
+    .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .pill {
+      border: 1.5px solid var(--line); background: var(--paper); color: var(--ink);
+      border-radius: 999px; padding: 7px 16px; font-weight: 700; font-size: .92rem;
+      text-decoration: none; transition: transform .15s, border-color .15s;
+    }
+    .pill:hover { transform: translateY(-1px); border-color: var(--rose); }
+    .light-switch { display: inline-flex; align-items: center; gap: 8px; }
+    .switch-track { width: 34px; height: 18px; border-radius: 999px; background: var(--line); position: relative; transition: background .3s; }
+    .switch-dot { position: absolute; top: 2px; inset-inline-start: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--paper); transition: inset-inline-start .25s; }
+    body.lights-on .switch-track { background: var(--rose); }
+    body.lights-on .switch-dot { inset-inline-start: 18px; }
+
+    /* ============ المقدمة والعدّاد ============ */
+    main { max-width: 1120px; margin: 0 auto; padding: 0 clamp(14px, 4vw, 40px) 120px; }
+    .intro {
+      display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 24px;
+      padding: clamp(28px, 6vw, 56px) 0 22px;
+    }
+    .intro h1 { font-family: var(--font-title); font-weight: 700; font-size: clamp(2rem, 6.5vw, 3.6rem); line-height: 1.25; margin: 0 0 10px; color: var(--ink); }
+    .intro p { margin: 0; color: var(--soft); font-size: 1.05rem; max-width: 34ch; line-height: 1.8; }
+    .progress { display: grid; justify-items: center; gap: 4px; text-align: center; }
+    .heart-meter { width: clamp(96px, 18vw, 140px); height: auto; filter: drop-shadow(0 8px 14px var(--shadow)); }
+    .heart-meter .meter-back { fill: var(--paper); stroke: var(--line); stroke-width: 1.2; }
+    .heart-meter .meter-fill { fill: var(--rose); transform-box: fill-box; transform-origin: bottom; transform: scaleY(0); transition: transform 1.1s cubic-bezier(.2, .9, .3, 1.1); }
+    .progress-count { font-family: var(--font-title); font-weight: 700; font-size: 1.5rem; color: var(--rose-deep); }
+    .progress-note { font-size: .9rem; color: var(--soft); max-width: 18ch; line-height: 1.5; }
+
+    /* ============ الفلاتر ============ */
+    .filters { display: grid; gap: 10px; margin-bottom: 26px; }
+    .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      border: 1.5px solid var(--line); background: transparent; border-radius: 999px;
+      padding: 6px 15px; font-weight: 500; font-size: .93rem; color: var(--soft); transition: all .15s;
+    }
+    .chip:hover { border-color: var(--rose); color: var(--ink); }
+    .chip[aria-pressed="true"] { background: var(--rose); border-color: var(--rose); color: #fff; font-weight: 700; }
+    body.lights-on .chip[aria-pressed="true"] { color: #2a1020; }
+    .chip-row.cats .chip { border-style: dashed; }
+    .chip-row.cats .chip[aria-pressed="true"] { border-style: solid; }
+
+    /* ============ التذاكر ============ */
+    .tickets { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 24px 22px; }
+    .ticket-wrap { position: relative; filter: drop-shadow(0 10px 14px var(--shadow)); transition: transform .2s; }
+    .ticket-wrap:hover { transform: translateY(-3px) rotate(-.4deg); }
+    .ticket {
+      --perf: 88px;
+      position: relative; display: grid; grid-template-columns: 1fr var(--perf);
+      min-height: 164px; border-radius: 14px; background: var(--paper); overflow: hidden;
+      -webkit-mask:
+        radial-gradient(circle 11px at var(--perf) 0, #0000 97%, #000) top / 100% 51% no-repeat,
+        radial-gradient(circle 11px at var(--perf) 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+              mask:
+        radial-gradient(circle 11px at var(--perf) 0, #0000 97%, #000) top / 100% 51% no-repeat,
+        radial-gradient(circle 11px at var(--perf) 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+    }
+    .ticket::after { /* خط التقطيع */
+      content: ''; position: absolute; top: 14px; bottom: 14px; left: var(--perf);
+      border-left: 2px dashed var(--line); pointer-events: none;
+    }
+    .ticket-main {
+      position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 10px;
+      text-align: start; padding: 18px 20px; border: 0; background: transparent; min-width: 0;
+    }
+    .ticket-cat { font-size: .85rem; font-weight: 700; color: var(--rose-deep); display: flex; align-items: center; gap: 6px; }
+    .ticket-name { font-family: var(--font-title); font-weight: 700; font-size: 1.32rem; line-height: 1.4; margin: 0; overflow-wrap: anywhere; }
+    .ticket-note { margin: 0; font-size: .93rem; line-height: 1.7; color: var(--soft); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .ticket-foot { font-size: .82rem; color: var(--soft); }
+
+    /* تذكرة اتحققت: صورة الغلاف خلفية */
+    .ticket.done.has-cover .ticket-main {
+      background: linear-gradient(0deg, rgba(40, 10, 25, .82), rgba(40, 10, 25, .25) 70%), var(--cover) center / cover;
+      color: #fff;
+    }
+    .ticket.done.has-cover .ticket-cat, .ticket.done.has-cover .ticket-note, .ticket.done.has-cover .ticket-foot { color: #ffe8ef; }
+    .ticket.done:not(.has-cover) { background: color-mix(in srgb, var(--rose) 14%, var(--paper)); }
+
+    /* الجزء اللي بيتقطع (القلب والختم) */
+    .ticket-stub { display: grid; place-items: center; align-content: center; gap: 8px; padding: 10px 6px; }
+    .heart-check {
+      width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--line);
+      background: transparent; display: grid; place-items: center; padding: 0; transition: transform .15s, border-color .15s, background .25s;
+    }
+    .heart-check svg { width: 26px; height: 24px; fill: none; stroke: var(--rose); stroke-width: 2; transition: fill .25s, transform .3s; }
+    .heart-check:hover { border-color: var(--rose); transform: scale(1.06); }
+    .heart-check[aria-pressed="true"] { background: var(--rose); border-color: var(--rose); }
+    .heart-check[aria-pressed="true"] svg { fill: #fff; stroke: #fff; }
+    .heart-check:disabled { opacity: .55; }
+    .stub-label { font-size: .78rem; font-weight: 700; color: var(--soft); }
+    .stamp {
+      font-family: var(--font-title); font-weight: 700; font-size: .82rem; color: var(--stamp);
+      border: 2.5px double var(--stamp); border-radius: 8px; padding: 3px 7px; transform: rotate(-11deg); opacity: .92;
+    }
+    .just-done .stamp { animation: stamp-in .55s cubic-bezier(.2, .8, .2, 1) both; }
+    .just-done .heart-check svg { animation: pop .5s ease both; }
+    @keyframes stamp-in { 0% { transform: rotate(-30deg) scale(2.6); opacity: 0; } 65% { transform: rotate(-11deg) scale(.94); opacity: 1; } 100% { transform: rotate(-11deg) scale(1); } }
+    @keyframes pop { 0% { transform: scale(.4); } 60% { transform: scale(1.35); } 100% { transform: scale(1); } }
+
+    /* قلوب بتطير */
+    .burst-layer { position: fixed; inset: 0; pointer-events: none; z-index: 60; overflow: hidden; }
+    .burst { position: absolute; font-size: 22px; color: var(--rose); animation: fly 1.3s ease-out forwards; }
+    @keyframes fly { 0% { transform: translate(0, 0) scale(.4) rotate(0); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(1.2) rotate(var(--rot)); opacity: 0; } }
+
+    .empty-state { text-align: center; padding: 60px 10px; color: var(--soft); line-height: 2; }
+    .empty-state .big { font-family: var(--font-title); font-size: 1.5rem; color: var(--ink); display: block; margin-bottom: 6px; }
+
+    /* ============ زرار إضافة ============ */
+    .add-place {
+      position: fixed; bottom: 22px; inset-inline-start: 22px; z-index: 25;
+      display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 999px;
+      background: var(--rose); color: #fff; padding: 14px 22px; font-weight: 800; font-size: 1.02rem;
+      box-shadow: 0 10px 24px var(--shadow); transition: transform .15s;
+    }
+    body.lights-on .add-place { color: #2a1020; }
+    .add-place:hover { transform: translateY(-2px) scale(1.03); }
+    .add-place span { font-size: 1.3rem; line-height: 1; }
+
+    /* ============ النوافذ ============ */
+    dialog { border: 0; padding: 0; background: transparent; color: var(--ink); max-width: 100vw; max-height: 100dvh; }
+    dialog::backdrop { background: rgba(60, 20, 40, .55); backdrop-filter: blur(3px); }
+    .modal-card {
+      position: relative; width: min(92vw, 440px); background: var(--paper); border-radius: 22px;
+      padding: 30px 26px 26px; display: grid; gap: 14px; box-shadow: 0 24px 60px rgba(0, 0, 0, .35);
+    }
+    .modal-card.wide { width: min(94vw, 680px); max-height: 90dvh; overflow-y: auto; }
+    .modal-card h2 { font-family: var(--font-title); font-size: 1.5rem; margin: 0; text-align: center; }
+    .modal-card > p { margin: 0; text-align: center; color: var(--soft); line-height: 1.7; }
+    .modal-heart { text-align: center; font-size: 2rem; color: var(--rose); line-height: 1; }
+    .close-button { position: absolute; top: 12px; inset-inline-end: 14px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: color-mix(in srgb, var(--line) 40%, transparent); font-size: 1.3rem; line-height: 1; }
+    label { display: grid; gap: 6px; font-weight: 700; font-size: .93rem; }
+    input, textarea, select {
+      width: 100%; border: 1.5px solid var(--line); background: color-mix(in srgb, var(--paper) 70%, var(--bg)); border-radius: 12px; padding: 11px 13px;
+    }
+    textarea { min-height: 96px; resize: vertical; line-height: 1.7; }
+    input:focus, textarea:focus, select:focus { outline: 2px solid var(--rose); border-color: var(--rose); }
+    .primary-button {
+      border: 0; border-radius: 14px; background: var(--rose); color: #fff; padding: 13px; font-weight: 800; font-size: 1rem; transition: transform .15s, opacity .2s;
+    }
+    body.lights-on .primary-button { color: #2a1020; }
+    .primary-button:hover { transform: translateY(-1px); }
+    .primary-button:disabled { opacity: .6; cursor: progress; }
+    .ghost-button { border: 1.5px solid var(--line); background: transparent; border-radius: 14px; padding: 11px; font-weight: 700; }
+    .danger-button { border: 1.5px solid var(--stamp); color: var(--stamp); background: transparent; border-radius: 14px; padding: 10px; font-weight: 700; }
+    .form-error { margin: 0; min-height: 1.3em; text-align: center; font-size: .9rem; color: var(--stamp); }
+    .form-error.info { color: var(--soft); }
+    .choice-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .identity-choice { border: 1.5px solid var(--line); background: transparent; border-radius: 14px; padding: 14px; font-family: var(--font-title); font-weight: 700; font-size: 1.1rem; transition: all .15s; }
+    .identity-choice:hover { border-color: var(--rose); background: color-mix(in srgb, var(--rose) 14%, transparent); }
+    .upload-box { display: block; border: 2px dashed var(--line); border-radius: 14px; padding: 16px; text-align: center; font-weight: 500; cursor: pointer; }
+    .upload-box small { display: block; color: var(--soft); margin-top: 4px; }
+    .upload-label input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .upload-label:focus-within .upload-box { border-color: var(--rose); }
+
+    /* ============ نافذة المكان ============ */
+    .place-head { display: grid; justify-items: center; gap: 4px; text-align: center; padding-top: 6px; }
+    .place-emoji { font-size: 2.4rem; line-height: 1; }
+    .place-meta { color: var(--soft); font-size: .92rem; }
+    .place-why { text-align: center; line-height: 1.9; color: var(--ink); margin: 0; }
+    .place-actions { display: grid; gap: 10px; }
+    .section-title { font-family: var(--font-title); font-size: 1.1rem; margin: 6px 0 0; color: var(--rose-deep); }
+    .polaroids { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 18px 14px; padding: 6px 2px; }
+    .polaroid {
+      position: relative; margin: 0; background: #fffdfb; padding: 8px 8px 30px; border-radius: 3px; box-shadow: 0 6px 14px var(--shadow);
+      transform: rotate(var(--r, 0deg)); transition: transform .2s; cursor: zoom-in; color: #5b3a48;
+    }
+    .polaroid:hover { transform: rotate(0) scale(1.04); z-index: 2; }
+    .polaroid img, .polaroid video { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: #e8d3da; }
+    .polaroid figcaption { position: absolute; bottom: 7px; left: 0; right: 0; text-align: center; font-family: var(--font-title); font-size: .78rem; }
+    .polaroid .photo-del {
+      position: absolute; top: -9px; inset-inline-end: -9px; width: 26px; height: 26px; border-radius: 50%; border: 0;
+      background: var(--stamp); color: #fff; font-size: 1rem; line-height: 1; box-shadow: 0 3px 8px rgba(0,0,0,.3);
+    }
+    .upload-progress { height: 10px; border-radius: 999px; background: color-mix(in srgb, var(--line) 45%, transparent); overflow: hidden; }
+    .upload-progress i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--rose); transition: width .25s ease; }
+    .polaroid.is-video::after {
+      content: '▶'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -62%);
+      width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; padding-inline-start: 3px;
+      background: rgba(40, 10, 25, .62); color: #fff; font-size: 1rem; pointer-events: none;
+    }
+    .notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .notes-grid textarea { min-height: 110px; }
+    .notes-grid textarea[readonly] { opacity: .8; background: transparent; border-style: dashed; }
+    @media (max-width: 560px) { .notes-grid { grid-template-columns: 1fr; } }
+
+    /* ============ العرض الكبير ============ */
+    .lightbox { width: 100vw; height: 100dvh; }
+    .lightbox-card { position: relative; width: 100%; height: 100%; display: grid; grid-template-rows: 1fr auto; place-items: center; padding: 20px; background: rgba(25, 8, 18, .93); }
+    .lightbox-stage { display: grid; place-items: center; width: 100%; height: 100%; min-height: 0; }
+    .lightbox-stage img, .lightbox-stage video { max-width: 100%; max-height: 78dvh; border-radius: 6px; }
+    .lightbox-caption { color: #ffe8ef; margin: 12px 0 0; }
+    .lightbox-close, .lightbox-nav { position: absolute; border: 0; border-radius: 50%; width: 44px; height: 44px; background: rgba(255,255,255,.16); color: #fff; font-size: 1.6rem; line-height: 1; }
+    .lightbox-close { top: 16px; inset-inline-end: 16px; }
+    .lightbox-nav { top: 50%; transform: translateY(-50%); }
+    .lb-prev { inset-inline-start: 14px; } .lb-next { inset-inline-end: 14px; }
+
+    .toast {
+      position: fixed; bottom: 90px; left: 50%; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; z-index: 80;
+      background: var(--ink); color: var(--paper); padding: 11px 20px; border-radius: 999px; font-weight: 700; transition: all .3s; max-width: 90vw; text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 640px) {
+      .intro { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+      .intro p { margin-inline: auto; }
+      .add-place { inset-inline-start: 50%; transform: translateX(50%); }
+      .add-place:hover { transform: translateX(50%) translateY(-2px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./">هاجر <span>♥</span> مصطفى</a>
+    <div class="header-actions">
+      <a class="pill" href="./">← الحيطة</a>
+      <button class="pill light-switch" id="lightSwitch" type="button" aria-pressed="false" aria-label="شغّل الأنوار">
+        <span class="switch-track"><span class="switch-dot"></span></span><span>الأنوار</span>
+      </button>
+      <button class="pill" id="loginButton" type="button">دخول</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div>
+        <h1>أماكن نفسنا نروحها سوا</h1>
+        <p>كل مكان تذكرة. أول ما نروحه نقصّها ونحط صورنا جواها.</p>
+      </div>
+      <div class="progress" aria-live="polite">
+        <svg class="heart-meter" viewBox="0 0 32 29" aria-hidden="true">
+          <defs><clipPath id="heartClip"><path id="heartPath" d="M16 28C16 28 2 19 2 9.5C2 5 5.5 2 9.5 2C12.5 2 14.8 3.6 16 6C17.2 3.6 19.5 2 22.5 2C26.5 2 30 5 30 9.5C30 19 16 28 16 28Z"/></clipPath></defs>
+          <use href="#heartPath" class="meter-back"/>
+          <g clip-path="url(#heartClip)"><rect class="meter-fill" id="meterFill" x="0" y="0" width="32" height="29"/></g>
+        </svg>
+        <div class="progress-count" id="progressCount">٠ من ٠</div>
+        <div class="progress-note" id="progressNote"></div>
+      </div>
+    </section>
+
+    <section class="filters" aria-label="تصفية الأماكن">
+      <div class="chip-row" id="statusChips"></div>
+      <div class="chip-row cats" id="catChips"></div>
+    </section>
+
+    <section class="tickets" id="tickets"></section>
+    <div class="empty-state" id="emptyState" hidden></div>
+  </main>
+
+  <button class="add-place" id="addPlaceButton" type="button" hidden><span>+</span> <b id="addPlaceLabel">ضيف مكان</b></button>
+
+  <!-- دخول -->
+  <dialog id="loginModal">
+    <form class="modal-card" id="loginForm" method="dialog">
+      <button class="close-button" type="button" data-close="loginModal" aria-label="إغلاق">×</button>
+      <div class="modal-heart">♥</div>
+      <h2>أهلاً بيكم</h2>
+      <p>ادخلوا علشان تضيفوا أماكن وتشيّكوا عليها.</p>
+      <label>اسم المستخدم<input id="username" autocomplete="username" required /></label>
+      <label>كلمة المرور<input id="password" type="password" autocomplete="current-password" required /></label>
+      <p class="form-error" id="loginError"></p>
+      <button class="primary-button" type="submit">دخول</button>
+    </form>
+  </dialog>
+
+  <dialog id="identityModal">
+    <div class="modal-card">
+      <div class="modal-heart">♥</div>
+      <h2>مين اللي فاتح؟</h2>
+      <div class="choice-buttons">
+        <button class="identity-choice" type="button" data-person="Hagar">هاجر</button>
+        <button class="identity-choice" type="button" data-person="Mostafa">مصطفى</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- مكان جديد -->
+  <dialog id="addModal">
+    <form class="modal-card" id="addForm" method="dialog">
+      <button class="close-button" type="button" data-close="addModal" aria-label="إغلاق">×</button>
+      <div class="modal-heart">✈</div>
+      <h2>مكان جديد في القايمة</h2>
+      <label>اسم المكان<input id="placeName" maxlength="60" required placeholder="مثلاً: سيوة" /></label>
+      <label>النوع<select id="placeCat"></select></label>
+      <label>ليه نفسنا نروحه؟<textarea id="placeNote" maxlength="300" placeholder="اختياري… بس حلو نفتكر السبب"></textarea></label>
+      <p class="form-error" id="addError"></p>
+      <button class="primary-button" type="submit">ضيف التذكرة</button>
+    </form>
+  </dialog>
+
+  <!-- روحنا المكان -->
+  <dialog id="visitModal">
+    <form class="modal-card" id="visitForm" method="dialog">
+      <button class="close-button" type="button" data-close="visitModal" aria-label="إغلاق">×</button>
+      <div class="modal-heart">♥</div>
+      <h2 id="visitTitle">روحنا!</h2>
+      <p>اختاروا يوم الزيارة، وضيفوا صور لو معاكم دلوقتي.</p>
+      <label>يوم الزيارة<input id="visitDate" type="date" required /></label>
+      <label class="upload-label">صور أو فيديوهات (اختياري)
+        <input id="visitFiles" type="file" accept="image/*,video/*" multiple />
+        <span class="upload-box" id="visitUploadBox">اضغطوا لاختيار الملفات</span>
+      </label>
+      <div class="upload-progress" id="visitBar" hidden><i></i></div>
+      <p class="form-error" id="visitError"></p>
+      <button class="primary-button" id="visitSubmit" type="submit">قصّ التذكرة ♥</button>
+    </form>
+  </dialog>
+
+  <!-- تفاصيل المكان -->
+  <dialog id="placeModal">
+    <div class="modal-card wide" id="placeCard"></div>
+  </dialog>
+
+  <dialog class="lightbox" id="lightbox" aria-label="عرض الصورة">
+    <div class="lightbox-card">
+      <button class="lightbox-close" type="button" data-close="lightbox" aria-label="إغلاق">×</button>
+      <button class="lightbox-nav lb-prev" id="lbPrev" type="button" aria-label="السابق">‹</button>
+      <div class="lightbox-stage" id="lightboxStage"></div>
+      <button class="lightbox-nav lb-next" id="lbNext" type="button" aria-label="التالي">›</button>
+      <p class="lightbox-caption" id="lightboxCaption"></p>
+    </div>
+  </dialog>
+
+  <dialog id="confirmModal">
+    <div class="modal-card">
+      <div class="modal-heart">♥</div>
+      <p id="confirmText"></p>
+      <div class="choice-buttons">
+        <button class="identity-choice" id="confirmNo" type="button">لأ، سيبه</button>
+        <button class="identity-choice" id="confirmYes" type="button">أيوه</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="burst-layer" id="burstLayer" aria-hidden="true"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js';
+    import { getFirestore, doc, onSnapshot, runTransaction } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
+    import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js';
+
+    /* ====== نفس إعدادات الموقع الأساسي (Firebase + Cloudinary) ====== */
+    const firebaseConfig = {
+      apiKey: 'AIzaSyB8571CLuVK9RwvN16p8agV95w0G9AfhSg',
+      authDomain: 'mostafasharaf-91a86.firebaseapp.com',
+      projectId: 'mostafasharaf-91a86',
+      storageBucket: 'mostafasharaf-91a86.firebasestorage.app',
+      messagingSenderId: '1060150475919',
+      appId: '1:1060150475919:web:65346cd9aa5d22aee1c4fa'
+    };
+    const CLOUDINARY_CLOUD_NAME = 'klxrsmyj';
+    const CLOUDINARY_UPLOAD_PRESET = 'hagar_mostafa_memories';
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const database = getFirestore(firebaseApp);
+    const firebaseSessionReady = signInAnonymously(getAuth(firebaseApp));
+    firebaseSessionReady.catch(error => console.warn('Could not create Firebase session:', error));
+    /* مستند جديد جوه نفس الـ collection، مش هيلمس الذكريات ولا الرسايل */
+    const placesDocument = doc(database, 'memoryWall', 'dreamPlaces');
+
+    const LS = { places: 'hagar-mostafa-dream-places-v1', lights: 'hagar-mostafa-lights' };
+    const CATEGORIES = {
+      trip:  { label: 'سفر',          emoji: '✈️' },
+      food:  { label: 'أكل',          emoji: '🍽️' },
+      out:   { label: 'خروجة',        emoji: '🌅' },
+      small: { label: 'حاجة صغيرة',   emoji: '🧸' }
+    };
+    const IDEAS = [
+      { name: 'كورنيش الإسكندرية عند الغروب', category: 'out',   note: 'نمشي ونشرب حاجة سخنة والموج جنبنا.' },
+      { name: 'سيوة',                          category: 'trip',  note: 'الهدوء، والنجوم، والعين الدافية.' },
+      { name: 'دهب',                           category: 'trip',  note: 'بحر ومفيش حد يستعجلنا.' },
+      { name: 'عشاء على النيل',                category: 'food',  note: 'أول عشاء بجد، شمع وموسيقى هادية.' },
+      { name: 'سينما بالليل',                  category: 'small', note: 'فيلم نختاره سوا وفشار كتير.' }
+    ];
+
+    const $ = s => document.querySelector(s);
+    const nf = new Intl.NumberFormat('ar-EG');
+    const uid = () => crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const isDate = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
+    const dateLabel = v => isDate(v) ? new Intl.DateTimeFormat('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${v}T12:00:00`)) : '';
+    const todayLocal = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+    const safeUrl = u => typeof u === 'string' && /^(https:\/\/|data:(image|video)\/)/.test(u);
+    const cloudUrl = (u, t) => (u.includes('res.cloudinary.com') && u.includes('/upload/') ? u.replace('/upload/', `/upload/${t}/`) : u);
+    const thumbUrl = u => cloudUrl(u, 'f_auto,q_auto,w_600,c_limit');
+    const fullUrl = u => cloudUrl(u, 'f_auto,q_auto,w_1600,c_limit');
+    const personLabel = p => (p === 'Hagar' ? 'هاجر' : 'مصطفى');
+    const readCache = () => { try { return JSON.parse(localStorage.getItem(LS.places)) ?? []; } catch { return []; } };
+
+    /* نفس جلسة الدخول بتاعة الصفحة الرئيسية (لو دخلت هناك هتبقى داخل هنا) */
+    let currentPerson = sessionStorage.getItem('memoryWallPerson') || '';
+    let loggedIn = sessionStorage.getItem('memoryWallLoggedIn') === 'true' && Boolean(currentPerson);
+    const isHagar = () => currentPerson === 'Hagar';
+
+    let places = readCache();
+    let statusFilter = 'all', catFilter = 'all';
+    let openPlaceId = null, justDoneId = null, visitPlaceId = null;
+
+    const modals = {
+      login: $('#loginModal'), identity: $('#identityModal'), add: $('#addModal'), visit: $('#visitModal'),
+      place: $('#placeModal'), lightbox: $('#lightbox'), confirm: $('#confirmModal')
+    };
+
+    /* ---------- أدوات واجهة ---------- */
+    function toast(msg) {
+      const box = $('#toast'); box.textContent = msg; box.classList.add('show');
+      clearTimeout(toast.t); toast.t = setTimeout(() => box.classList.remove('show'), 3600);
+    }
+    function askConfirm(msg, yes = 'أيوه') {
+      return new Promise(resolve => {
+        $('#confirmText').textContent = msg; $('#confirmYes').textContent = yes;
+        $('#confirmYes').onclick = () => { resolve(true); modals.confirm.close(); };
+        $('#confirmNo').onclick = () => modals.confirm.close();
+        modals.confirm.onclose = () => resolve(false);
+        modals.confirm.showModal();
+      });
+    }
+    function errorText(error, fallback) {
+      const code = error?.code || '';
+      if (code === 'permission-denied' || code.startsWith('auth/')) return 'Firebase مانع الحفظ: لازم قواعد Firestore تسمح بالمستند "dreamPlaces" (الخطوات في الشرح).';
+      if (code === 'unavailable' || !navigator.onLine) return 'مفيش إنترنت دلوقتي. جرّبوا تاني لما يرجع.';
+      return fallback;
+    }
+    function el(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+    function burst(x, y) {
+      const layer = $('#burstLayer');
+      for (let i = 0; i < 16; i++) {
+        const h = el('span', 'burst', ['♥', '♥', '✦', '♡'][i % 4]);
+        const angle = Math.random() * Math.PI * 2, dist = 70 + Math.random() * 130;
+        h.style.left = `${x}px`; h.style.top = `${y}px`;
+        h.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+        h.style.setProperty('--dy', `${Math.sin(angle) * dist - 60}px`);
+        h.style.setProperty('--rot', `${(Math.random() - .5) * 90}deg`);
+        h.style.fontSize = `${16 + Math.random() * 18}px`;
+        layer.append(h); setTimeout(() => h.remove(), 1400);
+      }
+    }
+
+    /* ---------- الحفظ (transaction علشان محدش يمسح تغييرات التاني) ---------- */
+    async function mutatePlaces(change) {
+      await firebaseSessionReady;
+      const next = await runTransaction(database, async tx => {
+        const snap = await tx.get(placesDocument);
+        const value = change(snap.data()?.places ?? []);
+        tx.set(placesDocument, { places: value, updatedAt: Date.now() }, { merge: true });
+        return value;
+      });
+      places = next; localStorage.setItem(LS.places, JSON.stringify(next));
+      render();
+      return next;
+    }
+    const patchPlace = (id, patch) => mutatePlaces(all => all.map(p => (p.id === id ? { ...p, ...patch } : p)));
+
+    /* ---------- رفع الصور (نفس طريقة الموقع) ---------- */
+    function prepareFile(file) {
+      if (!file.type.startsWith('image/') || file.type === 'image/gif') return Promise.resolve(file);
+      return new Promise(resolve => {
+        const image = new Image(), source = URL.createObjectURL(file);
+        image.onload = () => {
+          const scale = Math.min(1, 2000 / Math.max(image.naturalWidth, image.naturalHeight));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(image.naturalWidth * scale); canvas.height = Math.round(image.naturalHeight * scale);
+          canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(source);
+          canvas.toBlob(blob => resolve(blob || file), 'image/jpeg', .85);
+        };
+        image.onerror = () => { URL.revokeObjectURL(source); resolve(file); };
+        image.src = source;
+      });
+    }
+    async function fileToItem(file, onFraction) {
+      const type = file.type.startsWith('video/') ? 'video' : 'image';
+      const body = new FormData();
+      body.append('file', type === 'image' ? await prepareFile(file) : file, file.name);
+      body.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      body.append('folder', 'hagar-mostafa');
+      /* XMLHttpRequest بدل fetch علشان نعرف نسبة الرفع الحقيقية */
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${type}/upload`);
+        xhr.upload.onprogress = e => { if (e.lengthComputable) onFraction(e.loaded / e.total); };
+        xhr.onload = () => {
+          let result = {}; try { result = JSON.parse(xhr.responseText); } catch {}
+          if (xhr.status >= 200 && xhr.status < 300 && result.secure_url) {
+            onFraction(1);
+            resolve({ type, data: result.secure_url, name: file.name.replace(/\.[^/.]+$/, '').slice(0, 28) });
+          } else reject(new Error(result.error?.message || 'cloud-upload-failed'));
+        };
+        xhr.onerror = () => reject(new Error('network-error'));
+        xhr.send(body);
+      });
+    }
+    /* onProgress({ percent, done, total }) — النسبة محسوبة من حجم كل الملفات مع بعض */
+    async function uploadAll(files, onProgress) {
+      const fractions = files.map(() => 0), weights = files.map(f => Math.max(f.size, 1));
+      const sum = weights.reduce((a, b) => a + b, 0);
+      const report = () => onProgress({
+        percent: Math.min(100, Math.round(fractions.reduce((acc, f, i) => acc + f * weights[i], 0) / sum * 100)),
+        done: fractions.filter(f => f >= 1).length, total: files.length
+      });
+      report();
+      return Promise.all(files.map((file, i) => fileToItem(file, f => { fractions[i] = f; report(); })));
+    }
+    const setBar = (bar, percent) => { bar.hidden = percent === null; if (percent !== null) bar.firstElementChild.style.width = `${percent}%`; };
+    const progressText = ({ percent, done, total }) => `جاري الرفع… ${nf.format(percent)}٪ (${nf.format(done)} من ${nf.format(total)})`;
+
+    /* ---------- رسم الصفحة ---------- */
+    function chip(label, pressed, onClick) {
+      const b = el('button', 'chip', label); b.type = 'button'; b.setAttribute('aria-pressed', String(pressed)); b.onclick = onClick; return b;
+    }
+    function renderFilters() {
+      const statuses = [['all', 'الكل'], ['todo', 'لسه'], ['done', 'اتحقق']];
+      $('#statusChips').replaceChildren(...statuses.map(([k, l]) => chip(l, statusFilter === k, () => { statusFilter = k; render(); })));
+      const cats = [['all', 'كل الأنواع'], ...Object.entries(CATEGORIES).map(([k, v]) => [k, `${v.emoji} ${v.label}`])];
+      $('#catChips').replaceChildren(...cats.map(([k, l]) => chip(l, catFilter === k, () => { catFilter = k; render(); })));
+    }
+    function renderProgress() {
+      const total = places.length, done = places.filter(p => p.done).length;
+      $('#progressCount').textContent = `${nf.format(done)} من ${nf.format(total)}`;
+      $('#meterFill').style.transform = `scaleY(${total ? done / total : 0})`;
+      $('#progressNote').textContent = !total ? 'القايمة لسه فاضية' : done === total ? 'خلّصنا القايمة كلها. وقت قايمة جديدة!' : `فاضل ${nf.format(total - done)} مكان نحققهم`;
+    }
+    const coverOf = p => (p.photos || []).find(x => x?.type === 'image' && safeUrl(x.data));
+
+    function buildTicket(place) {
+      const cat = CATEGORIES[place.category] || CATEGORIES.out, cover = place.done ? coverOf(place) : null;
+      const wrap = el('div', `ticket-wrap${place.id === justDoneId ? ' just-done' : ''}`);
+      wrap.dataset.id = place.id;
+      const ticket = el('div', `ticket${place.done ? ' done' : ''}${cover ? ' has-cover' : ''}`);
+      if (cover) ticket.style.setProperty('--cover', `url("${thumbUrl(cover.data).replace(/"/g, '%22')}")`);
+
+      const main = el('button', 'ticket-main'); main.type = 'button';
+      main.setAttribute('aria-label', `تفاصيل ${place.name}`);
+      main.append(el('span', 'ticket-cat', `${cat.emoji} ${cat.label}`), el('h3', 'ticket-name', place.name));
+      if (place.note) main.append(el('p', 'ticket-note', place.note));
+      main.append(el('span', 'ticket-foot', place.done && isDate(place.date) ? `روحناه يوم ${dateLabel(place.date)}` : (place.addedBy ? `اقترحه ${personLabel(place.addedBy)}` : '')));
+      main.onclick = () => openPlace(place.id);
+
+      const stub = el('div', 'ticket-stub');
+      const heart = el('button', 'heart-check'); heart.type = 'button';
+      heart.setAttribute('aria-pressed', String(!!place.done));
+      heart.setAttribute('aria-label', place.done ? `رجّع ${place.name} لقايمة لسه` : `علّم إننا روحنا ${place.name}`);
+      heart.innerHTML = '<svg viewBox="0 0 32 29" aria-hidden="true"><path d="M16 27C16 27 3 18.5 3 9.8C3 5.5 6 3 9.6 3C12.4 3 14.8 4.5 16 7C17.2 4.5 19.6 3 22.4 3C26 3 29 5.5 29 9.8C29 18.5 16 27 16 27Z"/></svg>';
+      heart.onclick = event => toggleDone(place, event);
+      stub.append(heart, place.done ? el('span', 'stamp', 'اتزرنا') : el('span', 'stub-label', 'نفسنا'));
+
+      ticket.append(main, stub); wrap.append(ticket);
+      return wrap;
+    }
+
+    function render() {
+      renderFilters(); renderProgress();
+      const list = places
+        .filter(p => p && p.id && p.name)
+        .filter(p => statusFilter === 'all' || (statusFilter === 'done') === !!p.done)
+        .filter(p => catFilter === 'all' || p.category === catFilter)
+        .sort((a, b) => (a.done === b.done ? (b.done ? (b.date || '').localeCompare(a.date || '') : (b.createdAt || '').localeCompare(a.createdAt || '')) : (a.done ? 1 : -1)));
+      $('#tickets').replaceChildren(...list.map(buildTicket));
+      justDoneId = null;
+
+      const empty = $('#emptyState'); empty.hidden = list.length > 0; empty.replaceChildren();
+      if (!list.length) {
+        if (!places.length) {
+          empty.append(el('span', 'big', 'القايمة لسه فاضية'));
+          empty.append(el('span', '', loggedIn ? 'ابدأوا بأول مكان، أو خدوا شوية أفكار جاهزة.' : 'ادخلوا علشان تضيفوا أول مكان.'));
+          if (loggedIn) {
+            const seed = el('button', 'pill', 'ابدأوا بأفكار جاهزة'); seed.type = 'button'; seed.style.marginTop = '14px';
+            seed.onclick = seedIdeas; empty.append(document.createElement('br'), seed);
+          }
+        } else empty.append(el('span', 'big', 'مفيش هنا حاجة'), el('span', '', 'غيّروا الفلتر وهتلاقوا الباقي.'));
+      }
+      if (openPlaceId && modals.place.open) renderPlaceCard();
+    }
+
+    /* ---------- التشيك ---------- */
+    function requireLogin() {
+      if (loggedIn) return true;
+      toast('ادخلوا الأول علشان تقدروا تعدّلوا.'); modals.login.showModal(); return false;
+    }
+    async function toggleDone(place, event) {
+      if (!requireLogin()) return;
+      if (!place.done) { openVisit(place.id); return; }
+      try {
+        if (await askConfirm(`نرجّع "${place.name}" لقايمة لسه؟ الصور هتفضل محفوظة.`)) {
+          await patchPlace(place.id, { done: false });
+        }
+      } catch (e) { toast(errorText(e, 'العملية ما تمتش. جرّبوا تاني.')); }
+    }
+    function openVisit(id) {
+      const place = places.find(p => p.id === id); if (!place) return;
+      visitPlaceId = id;
+      $('#visitTitle').textContent = `روحنا ${place.name}!`;
+      $('#visitDate').value = todayLocal(); $('#visitFiles').value = '';
+      $('#visitUploadBox').textContent = 'اضغطوا لاختيار الملفات'; $('#visitError').textContent = ''; setBar($('#visitBar'), null);
+      modals.visit.showModal();
+    }
+    $('#visitFiles').addEventListener('change', e => {
+      const n = e.target.files.length;
+      $('#visitUploadBox').textContent = n ? `تم اختيار ${nf.format(n)} ملف ✨` : 'اضغطوا لاختيار الملفات';
+    });
+    $('#visitForm').addEventListener('submit', async event => {
+      event.preventDefault();
+      const button = $('#visitSubmit'), error = $('#visitError');
+      if (button.disabled) return;
+      const date = $('#visitDate').value, files = [...$('#visitFiles').files], id = visitPlaceId;
+      if (!isDate(date)) { error.className = 'form-error'; error.textContent = 'اختاروا يوم الزيارة الأول.'; return; }
+      const label = button.textContent; button.disabled = true;
+      try {
+        let photos = [];
+        if (files.length) {
+          button.textContent = 'جاري الرفع…';
+          photos = await uploadAll(files, info => { error.className = 'form-error info'; error.textContent = progressText(info); setBar($('#visitBar'), info.percent); });
+        }
+        justDoneId = id;
+        await mutatePlaces(all => all.map(p => (p.id === id ? { ...p, done: true, date, photos: [...(p.photos || []), ...photos] } : p)));
+        modals.visit.close(); error.textContent = '';
+        requestAnimationFrame(() => {
+          const heart = document.querySelector(`.ticket-wrap[data-id="${id}"] .heart-check`)?.getBoundingClientRect();
+          if (heart) burst(heart.left + heart.width / 2, heart.top + heart.height / 2); else burst(innerWidth / 2, innerHeight / 2);
+        });
+      } catch (e) {
+        justDoneId = null; error.className = 'form-error';
+        error.textContent = errorText(e, 'حصلت مشكلة أثناء الرفع أو الحفظ. جرّبوا تاني.');
+      } finally { button.disabled = false; button.textContent = label; setBar($('#visitBar'), null); }
+    });
+
+    /* ---------- إضافة مكان ---------- */
+    $('#placeCat').replaceChildren(...Object.entries(CATEGORIES).map(([k, v]) => { const o = el('option', '', `${v.emoji} ${v.label}`); o.value = k; return o; }));
+    $('#addPlaceButton').addEventListener('click', () => {
+      $('#addForm').reset(); $('#addError').textContent = ''; modals.add.showModal();
+    });
+    $('#addForm').addEventListener('submit', async event => {
+      event.preventDefault();
+      const name = $('#placeName').value.trim(), error = $('#addError');
+      if (!name) { error.textContent = 'اكتبوا اسم المكان الأول.'; return; }
+      const place = { id: uid(), name, category: $('#placeCat').value, note: $('#placeNote').value.trim(), addedBy: currentPerson, createdAt: new Date().toISOString(), done: false, date: '', photos: [], noteHagar: '', noteMostafa: '' };
+      try { await mutatePlaces(all => [...all, place]); modals.add.close(); toast('اتضافت التذكرة ✈️'); }
+      catch (e) { error.textContent = errorText(e, 'ما اتحفظش. جرّبوا تاني.'); }
+    });
+    async function seedIdeas() {
+      const now = Date.now();
+      const items = IDEAS.map((idea, i) => ({ id: uid(), ...idea, addedBy: currentPerson, createdAt: new Date(now + i).toISOString(), done: false, date: '', photos: [], noteHagar: '', noteMostafa: '' }));
+      try { await mutatePlaces(all => [...all, ...items]); } catch (e) { toast(errorText(e, 'ما اتحفظش. جرّبوا تاني.')); }
+    }
+
+    /* ---------- نافذة تفاصيل المكان ---------- */
+    function openPlace(id) { openPlaceId = id; renderPlaceCard(); if (!modals.place.open) modals.place.showModal(); }
+    function renderPlaceCard() {
+      const place = places.find(p => p.id === openPlaceId), card = $('#placeCard');
+      if (!place) { modals.place.close(); return; }
+      const cat = CATEGORIES[place.category] || CATEGORIES.out, scroll = card.scrollTop;
+      card.replaceChildren();
+      const close = el('button', 'close-button', '×'); close.type = 'button'; close.setAttribute('aria-label', 'إغلاق'); close.onclick = () => modals.place.close();
+      const head = el('div', 'place-head');
+      head.append(el('div', 'place-emoji', cat.emoji), el('h2', '', place.name),
+        el('div', 'place-meta', place.done ? `روحناه يوم ${dateLabel(place.date)}` : `${cat.label}${place.addedBy ? ` · اقترحه ${personLabel(place.addedBy)}` : ''}`));
+      card.append(close, head);
+      if (place.note) card.append(el('p', 'place-why', place.note));
+
+      const actions = el('div', 'place-actions');
+      if (loggedIn) {
+        const mark = el('button', place.done ? 'ghost-button' : 'primary-button', place.done ? 'رجّعه لقايمة "لسه"' : 'روحنا المكان ده ♥');
+        mark.type = 'button';
+        mark.onclick = () => { modals.place.close(); toggleDone(place); };
+        actions.append(mark);
+      }
+      card.append(actions);
+
+      if (place.done) {
+        card.append(el('h3', 'section-title', 'صورنا هناك'));
+        const photos = (place.photos || []).filter(x => x && safeUrl(x.data));
+        if (photos.length) {
+          const grid = el('div', 'polaroids');
+          photos.forEach((item, i) => {
+            const fig = el('figure', `polaroid${item.type === 'video' ? ' is-video' : ''}`); fig.style.setProperty('--r', `${[-2.5, 2, -1.5, 3, -2, 1.5][i % 6]}deg`);
+            let media;
+            if (item.type === 'video') { media = document.createElement('video'); media.src = thumbUrl(item.data); media.muted = true; media.playsInline = true; media.preload = 'metadata'; }
+            else { media = document.createElement('img'); media.src = thumbUrl(item.data); media.alt = item.name || 'صورة'; media.loading = 'lazy'; }
+            fig.append(media, el('figcaption', '', dateLabel(place.date)));
+            fig.onclick = () => openLightbox(photos, i, place);
+            if (loggedIn) {
+              const del = el('button', 'photo-del', '×'); del.type = 'button'; del.setAttribute('aria-label', 'امسح الصورة');
+              del.onclick = async e => {
+                e.stopPropagation();
+                if (await askConfirm('تمسحوا الصورة دي؟')) patchPlaceSafe(place.id, p => ({ photos: (p.photos || []).filter(x => x.data !== item.data) }));
+              };
+              fig.append(del);
+            }
+            grid.append(fig);
+          });
+          card.append(grid);
+        } else card.append(el('p', 'place-why', 'لسه مفيش صور هنا.'));
+
+        if (loggedIn) {
+          const label = el('label', 'upload-label'); const input = document.createElement('input');
+          input.type = 'file'; input.accept = 'image/*,video/*'; input.multiple = true;
+          const box = el('span', 'upload-box', '+ ضيفوا صور'); label.append(input, box);
+          const bar = el('div', 'upload-progress'); bar.hidden = true; bar.append(document.createElement('i'));
+          const status = el('p', 'form-error info');
+          input.onchange = async () => {
+            const files = [...input.files]; if (!files.length) return;
+            try {
+              status.className = 'form-error info';
+              const items = await uploadAll(files, info => { status.textContent = progressText(info); setBar(bar, info.percent); });
+              status.textContent = 'جاري الحفظ…';
+              await patchPlaceSafe(place.id, p => ({ photos: [...(p.photos || []), ...items] })); toast('اتضافت الصور ✨');
+            } catch (e) { status.className = 'form-error'; status.textContent = errorText(e, 'الرفع ما تمش. جرّبوا تاني.'); setBar(bar, null); }
+          };
+          card.append(label, bar, status);
+        }
+
+        card.append(el('h3', 'section-title', 'كلمتين عن اليوم ده'));
+        if (loggedIn) card.append(el('p', 'place-why', isHagar() ? 'اكتبي اللي فاكراه إن مصطفى قاله في اليوم ده.' : 'اكتب اللي فاكره إن هاجر قالته في اليوم ده.'));
+        const notes = el('div', 'notes-grid');
+        [['Hagar', 'noteHagar', 'هاجر بتقول'], ['Mostafa', 'noteMostafa', 'مصطفى بيقول']].forEach(([person, field, title]) => {
+          const label = el('label', '', title); const area = document.createElement('textarea');
+          area.maxLength = 500; area.value = place[field] || '';
+          /* كل واحد بيكتب اللي فاكره إن التاني قاله، فالخانة بتاعتي بيكتبها التاني */
+          const editable = loggedIn && currentPerson !== person; area.readOnly = !editable;
+          area.placeholder = editable ? (person === 'Hagar' ? 'اكتب اللي فاكره إن هاجر قالته…' : 'اكتبي اللي فاكراه إن مصطفى قاله…') : '…';
+          area.onchange = () => patchPlaceSafe(place.id, () => ({ [field]: area.value.trim() }));
+          label.append(area); notes.append(label);
+        });
+        card.append(notes);
+      }
+
+      if (loggedIn) {
+        const del = el('button', 'danger-button', 'امسح المكان من القايمة'); del.type = 'button';
+        del.onclick = async () => {
+          if (await askConfirm(`تمسحوا "${place.name}" نهائياً؟`)) {
+            try { modals.place.close(); await mutatePlaces(all => all.filter(p => p.id !== place.id)); } catch (e) { toast(errorText(e, 'ما اتمسحش. جرّبوا تاني.')); }
+          }
+        };
+        card.append(del);
+      }
+      card.scrollTop = scroll;
+    }
+    /* تعديل من جوه النافذة، بنقرا النسخة الأحدث من المكان داخل الـ transaction */
+    function patchPlaceSafe(id, makePatch) {
+      return mutatePlaces(all => all.map(p => (p.id === id ? { ...p, ...makePatch(p) } : p))).catch(e => toast(errorText(e, 'ما اتحفظش. جرّبوا تاني.')));
+    }
+    modals.place.addEventListener('close', () => { openPlaceId = null; });
+
+    /* ---------- العرض الكبير ---------- */
+    let lbItems = [], lbIndex = 0, lbDate = '';
+    function showLightbox() {
+      const item = lbItems[lbIndex], stage = $('#lightboxStage'); stage.replaceChildren();
+      let media;
+      if (item.type === 'video') { media = document.createElement('video'); media.src = cloudUrl(item.data, 'f_auto,q_auto'); media.controls = true; media.autoplay = true; media.loop = true; media.playsInline = true; }
+      else { media = new Image(); media.src = fullUrl(item.data); media.alt = 'صورة'; }
+      stage.append(media);
+      $('#lightboxCaption').textContent = `${lbDate} · ${nf.format(lbIndex + 1)} من ${nf.format(lbItems.length)}`;
+      $('#lbPrev').hidden = $('#lbNext').hidden = lbItems.length < 2;
+    }
+    const stepLightbox = s => { if (lbItems.length < 2) return; lbIndex = (lbIndex + s + lbItems.length) % lbItems.length; showLightbox(); };
+    function openLightbox(items, index, place) { lbItems = items; lbIndex = index; lbDate = `${place.name} · ${dateLabel(place.date)}`; showLightbox(); modals.lightbox.showModal(); }
+    $('#lbPrev').onclick = () => stepLightbox(-1); $('#lbNext').onclick = () => stepLightbox(1);
+    modals.lightbox.addEventListener('click', e => { if (e.target.classList.contains('lightbox-card')) modals.lightbox.close(); });
+    modals.lightbox.addEventListener('close', () => $('#lightboxStage').replaceChildren());
+    modals.lightbox.addEventListener('keydown', e => { if (e.key === 'ArrowRight') stepLightbox(1); if (e.key === 'ArrowLeft') stepLightbox(-1); });
+
+    /* ---------- الدخول والخروج ---------- */
+    function updateAuthUI() {
+      $('#loginButton').textContent = loggedIn ? 'خروج' : 'دخول';
+      $('#addPlaceButton').hidden = !loggedIn;
+      $('#addPlaceLabel').textContent = isHagar() ? 'ضيفي مكان' : 'ضيف مكان';
+    }
+    $('#loginButton').addEventListener('click', () => {
+      if (loggedIn) {
+        loggedIn = false; currentPerson = '';
+        sessionStorage.removeItem('memoryWallLoggedIn'); sessionStorage.removeItem('memoryWallPerson');
+        updateAuthUI(); render();
+      } else modals.login.showModal();
+    });
+    $('#loginForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const user = $('#username').value.trim().toLowerCase(), pass = $('#password').value;
+      if (user === 'hagarandmostafa' && pass === '1508') {
+        modals.login.close(); e.target.reset(); $('#loginError').textContent = ''; modals.identity.showModal();
+      } else $('#loginError').textContent = 'اسم المستخدم أو كلمة المرور مش صح.';
+    });
+    modals.identity.addEventListener('cancel', e => e.preventDefault());
+    document.querySelectorAll('.identity-choice[data-person]').forEach(b => b.addEventListener('click', () => {
+      currentPerson = b.dataset.person; loggedIn = true;
+      sessionStorage.setItem('memoryWallLoggedIn', 'true'); sessionStorage.setItem('memoryWallPerson', currentPerson);
+      modals.identity.close(); updateAuthUI(); render();
+    }));
+    document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => $(`#${b.dataset.close}`).close()));
+
+    /* ---------- الأنوار (نفس إعداد الموقع) ---------- */
+    const lightSwitch = $('#lightSwitch');
+    function setLights(on, save) {
+      document.body.classList.toggle('lights-on', on);
+      lightSwitch.setAttribute('aria-pressed', String(on));
+      lightSwitch.setAttribute('aria-label', on ? 'اطفي الأنوار' : 'شغّل الأنوار');
+      if (save) localStorage.setItem(LS.lights, on ? '1' : '0');
+    }
+    lightSwitch.addEventListener('click', () => setLights(!document.body.classList.contains('lights-on'), true));
+    const savedLights = localStorage.getItem(LS.lights), hour = new Date().getHours();
+    setLights(savedLights === null ? (hour >= 19 || hour < 5) : savedLights === '1', false);
+
+    /* ---------- المزامنة اللحظية ---------- */
+    firebaseSessionReady.then(() => {
+      onSnapshot(placesDocument, snapshot => {
+        const incoming = snapshot.data()?.places;
+        if (!Array.isArray(incoming)) return;
+        if (JSON.stringify(incoming) === JSON.stringify(places)) return;
+        places = incoming; localStorage.setItem(LS.places, JSON.stringify(incoming)); render();
+      }, error => console.warn('Could not read places from Firebase:', error));
+    }).catch(() => {});
+
+    updateAuthUI(); render();
+  </script>
+</body>
+</html>
