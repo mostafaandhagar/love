@@ -352,7 +352,7 @@
       <button class="close-button" type="button" data-close="addModal" aria-label="إغلاق">×</button>
       <div class="modal-heart">✈</div>
       <h2>مكان جديد في القايمة</h2>
-      <label>اسم المكان<input id="placeName" maxlength="60" required placeholder="مثلاً: سيوة" /></label>
+      <label>اسم المكان<input id="placeName" maxlength="60" required placeholder="مثلاً: سينما" /></label>
       <label>النوع<select id="placeCat"></select></label>
       <label>ليه نفسنا نروحه؟<textarea id="placeNote" maxlength="300" placeholder="اختياري… بس حلو نفتكر السبب"></textarea></label>
       <p class="form-error" id="addError"></p>
@@ -370,7 +370,7 @@
       <label>يوم الزيارة<input id="visitDate" type="date" required /></label>
       <label class="upload-label">صور أو فيديوهات (اختياري)
         <input id="visitFiles" type="file" accept="image/*,video/*" multiple />
-        <span class="upload-box" id="visitUploadBox">اضغطوا لاختيار الملفات</span>
+        <span class="upload-box" id="visitUploadBox">اضغطوا لاختيار الصور</span>
       </label>
       <div class="upload-progress" id="visitBar" hidden><i></i></div>
       <p class="form-error" id="visitError"></p>
@@ -433,18 +433,11 @@
 
     const LS = { places: 'hagar-mostafa-dream-places-v1', lights: 'hagar-mostafa-lights' };
     const CATEGORIES = {
-      trip:  { label: 'سفر',          emoji: '✈️' },
+      trip:  { label: 'سفر',          emoji: '🚙' },
       food:  { label: 'أكل',          emoji: '🍽️' },
       out:   { label: 'خروجة',        emoji: '🌅' },
-      small: { label: 'حاجة صغيرة',   emoji: '🧸' }
     };
-    const IDEAS = [
-      { name: 'كورنيش الإسكندرية عند الغروب', category: 'out',   note: 'نمشي ونشرب حاجة سخنة والموج جنبنا.' },
-      { name: 'سيوة',                          category: 'trip',  note: 'الهدوء، والنجوم، والعين الدافية.' },
-      { name: 'دهب',                           category: 'trip',  note: 'بحر ومفيش حد يستعجلنا.' },
-      { name: 'عشاء على النيل',                category: 'food',  note: 'أول عشاء بجد، شمع وموسيقى هادية.' },
-      { name: 'سينما بالليل',                  category: 'small', note: 'فيلم نختاره سوا وفشار كتير.' }
-    ];
+  
 
     const $ = s => document.querySelector(s);
     const nf = new Intl.NumberFormat('ar-EG');
@@ -619,7 +612,7 @@
       heart.setAttribute('aria-label', place.done ? `رجّع ${place.name} لقايمة لسه` : `علّم إننا روحنا ${place.name}`);
       heart.innerHTML = '<svg viewBox="0 0 32 29" aria-hidden="true"><path d="M16 27C16 27 3 18.5 3 9.8C3 5.5 6 3 9.6 3C12.4 3 14.8 4.5 16 7C17.2 4.5 19.6 3 22.4 3C26 3 29 5.5 29 9.8C29 18.5 16 27 16 27Z"/></svg>';
       heart.onclick = event => toggleDone(place, event);
-      stub.append(heart, place.done ? el('span', 'stamp', 'اتزرنا') : el('span', 'stub-label', 'نفسنا'));
+      stub.append(heart, place.done ? el('span', 'stamp', 'روحناه') : el('span', 'stub-label', 'نفسنا'));
 
       ticket.append(main, stub); wrap.append(ticket);
       return wrap;
