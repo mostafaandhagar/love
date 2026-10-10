@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>فوتوبوث هاجر ♥ مصطفى</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Reem+Kufi:wght@600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fbeff1; --surface: #ffffff; --ink: #3b1626; --ink-soft: #7a4a5c; --line: #efd3da;
+  --accent: #c8344b; --accent-ink: #ffffff; --chip: #f6dde3;
+  --velvet-a: #5a1d33; --velvet-b: #6e2540; --velvet-c: #4a1628;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1d0d15; --surface: #2b1420; --ink: #fbe9ee; --ink-soft: #d3a5b4; --line: #4a2536;
+    --accent: #ef5a75; --accent-ink: #2b0a14; --chip: #3b1c2b;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1d0d15; --surface: #2b1420; --ink: #fbe9ee; --ink-soft: #d3a5b4; --line: #4a2536;
+  --accent: #ef5a75; --accent-ink: #2b0a14; --chip: #3b1c2b;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Tajawal", "Segoe UI", Tahoma, system-ui, sans-serif; font-size: 16px; line-height: 1.6; min-height: 100vh; }
+button { font: inherit; color: inherit; cursor: pointer; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.curtain {
+  background: repeating-linear-gradient(90deg, var(--velvet-c) 0 26px, var(--velvet-b) 26px 40px, var(--velvet-a) 40px 66px);
+  color: #fff3e0; text-align: center; padding: 26px 16px 38px; position: relative;
+  box-shadow: inset 0 -18px 28px rgba(0,0,0,.35);
+}
+.curtain::after {
+  content: ""; position: absolute; inset-inline: 0; bottom: -14px; height: 28px;
+  background: radial-gradient(circle at 50% 0, var(--velvet-c) 0 14px, transparent 15px) 0 0 / 44px 28px repeat-x;
+}
+.curtain h1 { margin: 0; font-family: "Reem Kufi", "Tajawal", sans-serif; font-weight: 600; font-size: clamp(28px, 7vw, 42px); }
+.curtain p { margin: 6px 0 0; color: #f4cfd8; font-size: 15px; }
+main { max-width: 760px; margin: 0 auto; padding: 34px 16px 60px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px; margin-bottom: 18px; }
+.panel h2 { margin: 0 0 4px; font-size: 20px; font-weight: 800; }
+.panel .sub { margin: 0 0 16px; color: var(--ink-soft); font-size: 15px; }
+.btn { border: 0; border-radius: 999px; padding: 12px 24px; font-weight: 700; font-size: 16px; background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.row.mid { justify-content: center; }
+.code { font-family: "Reem Kufi", "Tajawal", sans-serif; font-size: 34px; letter-spacing: 6px; direction: ltr; background: var(--chip); border-radius: 14px; padding: 2px 18px; display: inline-block; }
+input[type="text"] { font: inherit; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 14px; min-width: 0; }
+input[type="text"]:disabled { opacity: .7; }
+.codeInput { text-transform: uppercase; letter-spacing: 6px; direction: ltr; text-align: center; width: 150px; }
+.bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.who { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill { background: var(--chip); border-radius: 999px; padding: 3px 14px; font-size: 14px; }
+.pill.on { background: var(--accent); color: var(--accent-ink); }
+
+.opt { margin-bottom: 14px; }
+.opt > .lbl { font-weight: 700; font-size: 15px; margin-bottom: 6px; display: block; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { background: var(--chip); border: 1.5px solid transparent; border-radius: 999px; padding: 6px 16px; font-size: 15px; }
+.chip[aria-pressed="true"] { border-color: var(--accent); background: var(--surface); font-weight: 700; }
+.chip:disabled, .sw:disabled { cursor: default; opacity: .75; }
+.sw { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--line); padding: 0; }
+.sw[aria-pressed="true"] { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.cams { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; position: relative; }
+.cam { position: relative; aspect-ratio: 1 / 1; border-radius: 16px; overflow: hidden; background: #2a1520; border: 3px solid var(--velvet-b); }
+.cam video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cam.mirror video { transform: scaleX(-1); }
+.cam .tag { position: absolute; bottom: 8px; inset-inline-start: 8px; background: rgba(0,0,0,.55); color: #fff; font-size: 13px; padding: 2px 12px; border-radius: 999px; }
+.cam .note { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: #f4cfd8; padding: 14px; font-size: 14px; background: rgba(42,21,32,.78); }
+.cam .note[hidden] { display: none; }
+.f-bw video { filter: grayscale(1) contrast(1.05); }
+.f-warm video { filter: sepia(.25) saturate(1.2) brightness(1.03); }
+.f-soft video { filter: brightness(1.08) contrast(.9) saturate(1.05); }
+.overlay { position: absolute; inset: 0; display: none; place-items: center; pointer-events: none; z-index: 3; }
+.overlay.on { display: grid; }
+.overlay span { font-family: "Reem Kufi", sans-serif; font-size: clamp(90px, 28vw, 190px); color: #fff; text-shadow: 0 6px 30px rgba(0,0,0,.6); line-height: 1; }
+.flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 4; border-radius: 16px; }
+.flash.go { animation: flash .45s ease-out; }
+@keyframes flash { 0% { opacity: .95; } 100% { opacity: 0; } }
+.dots { display: flex; gap: 8px; justify-content: center; margin: 14px 0 4px; min-height: 22px; align-items: center; }
+.dot { width: 12px; height: 12px; border-radius: 50%; background: var(--line); }
+.dot.done { background: var(--accent); }
+.status { text-align: center; color: var(--ink-soft); min-height: 24px; margin: 4px 0 12px; }
+.err { color: var(--accent); text-align: center; min-height: 22px; margin: 8px 0 0; }
+.hint { font-size: 13px; color: var(--ink-soft); margin: 6px 0 0; }
+.hint.c { text-align: center; }
+.resultImg { display: block; margin: 0 auto 16px; max-width: 100%; max-height: 78vh; height: auto; border-radius: 6px; box-shadow: 0 10px 34px rgba(60,10,30,.28); }
+.toast { position: fixed; inset-inline: 16px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); margin: 0 auto; max-width: 440px; background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 14px; text-align: center; font-size: 15px; transform: translateY(160%); transition: transform .25s ease; z-index: 10; }
+.toast.show { transform: translateY(0); }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { .flash.go { animation: none; } .toast { transition: none; } }
+</style>
+</head>
+<body>
+
+<header class="curtain">
+  <h1>فوتوبوث هاجر ♥ مصطفى</h1>
+  <p>اتصوروا مع بعض، حتى لو بعاد عن بعض</p>
+</header>
+
+<main>
+  <!-- مش داخلين -->
+  <section id="stepGate" hidden>
+    <div class="panel">
+      <h2>ادخلوا الأول</h2>
+      <p class="sub">الفوتوبوث ليكم انتم الاتنين بس. ادخلوا من صفحة الذكريات الأول وبعدين ارجعوا هنا.</p>
+      <a class="btn" href="./" style="display:inline-block;text-decoration:none">روح للذكريات</a>
+    </div>
+  </section>
+
+  <!-- الغرفة -->
+  <section id="stepRoom" hidden>
+    <div class="panel">
+      <h2>اعمل غرفة جديدة</h2>
+      <p class="sub">هيطلع لك كود، ابعته لـ<span class="otherName">التاني</span> عشان يدخل.</p>
+      <button class="btn" id="btnCreate">اعمل غرفة</button>
+    </div>
+    <div class="panel">
+      <h2>ادخل غرفة</h2>
+      <p class="sub">معاك كود؟ اكتبه هنا.</p>
+      <div class="row">
+        <input type="text" id="joinInput" class="codeInput" maxlength="4" placeholder="ABCD" aria-label="كود الغرفة" autocomplete="off">
+        <button class="btn" id="btnJoin">ادخل</button>
+      </div>
+    </div>
+    <p class="err" id="roomErr" role="alert"></p>
+    <p class="hint c"><a href="./">رجوع للذكريات</a></p>
+  </section>
+
+  <!-- التصوير -->
+  <section id="stepBooth" hidden>
+    <div class="bar">
+      <div class="row"><span>كود الغرفة</span><span class="code" id="roomCode">----</span></div>
+      <div class="who"><span class="pill" id="pillMe"></span><span class="pill" id="pillOther"></span></div>
+    </div>
+
+    <div class="panel">
+      <h2>إعدادات الشريط</h2>
+      <p class="sub" id="optsSub"></p>
+      <div id="opts"></div>
+      <div class="opt">
+        <label class="lbl" for="capIn" style="font-weight:700;font-size:15px;display:block;margin-bottom:6px">جملة تحت الشريط</label>
+        <input type="text" id="capIn" maxlength="40" placeholder="سيبها فاضية وهنكتب التاريخ" style="width:100%">
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="cams" id="cams">
+        <div class="cam mirror" id="camMe">
+          <video id="vidMe" autoplay playsinline muted></video>
+          <div class="note" id="meNote" hidden></div>
+          <span class="tag" id="tagMe"></span>
+        </div>
+        <div class="cam mirror" id="camOther">
+          <video id="vidOther" autoplay playsinline muted></video>
+          <div class="note" id="otherNote"></div>
+          <span class="tag" id="tagOther"></span>
+        </div>
+        <div class="overlay" id="overlay"><span id="count">3</span></div>
+        <div class="flash" id="flash"></div>
+      </div>
+      <div class="dots" id="dots" aria-hidden="true"></div>
+      <p class="status" id="boothStatus" role="status"></p>
+      <div class="row mid">
+        <button class="btn" id="btnStart" disabled>ابدأ التصوير</button>
+        <button class="btn ghost" id="btnRetryCam" hidden>جرّب الكاميرا تاني</button>
+        <button class="btn ghost" id="btnLeave">اخرج من الغرفة</button>
+      </div>
+      <p class="err" id="boothErr" role="alert"></p>
+    </div>
+  </section>
+
+  <!-- النتيجة -->
+  <section id="stepResult" hidden>
+    <div class="panel">
+      <h2>الشريط جاهز ♥</h2>
+      <p class="sub">اتصورتوا حلو.</p>
+      <img id="resultImg" class="resultImg" alt="شريط الصور النهائي">
+      <div class="row mid">
+        <button class="btn" id="btnWall">علّق على الحيطة</button>
+        <button class="btn ghost" id="btnDownload">حمّل الشريط</button>
+        <button class="btn ghost" id="btnAgain">صوّروا تاني</button>
+        <button class="btn ghost" id="btnLeave2">اخرج من الغرفة</button>
+      </div>
+      <p class="hint c" id="againHint" hidden></p>
+      <p class="err" id="resultErr" role="alert"></p>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, runTransaction, arrayUnion } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
+import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js';
+
+/* ---------- نفس إعدادات الموقع ---------- */
+const firebaseConfig = {
+  apiKey: 'AIzaSyB8571CLuVK9RwvN16p8agV95w0G9AfhSg',
+  authDomain: 'mostafasharaf-91a86.firebaseapp.com',
+  projectId: 'mostafasharaf-91a86',
+  storageBucket: 'mostafasharaf-91a86.firebasestorage.app',
+  messagingSenderId: '1060150475919',
+  appId: '1:1060150475919:web:65346cd9aa5d22aee1c4fa'
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const sessionReady = signInAnonymously(getAuth(app));
+sessionReady.catch(() => {});
+const memoriesDocument = doc(db, 'memoryWall', 'sharedMemories');
+const CLOUDINARY_CLOUD_NAME = 'klxrsmyj';
+const CLOUDINARY_UPLOAD_PRESET = 'hagar_mostafa_memories';
+const LS_MEMORIES = 'hagar-mostafa-memory-wall-v1';
+
+const $ = id => document.getElementById(id);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(16).slice(2));
+const label = p => (p === 'Hagar' ? 'هاجر' : 'مصطفى');
+
+const PERSON = sessionStorage.getItem('memoryWallPerson') || '';
+const LOGGED = sessionStorage.getItem('memoryWallLoggedIn') === 'true' && (PERSON === 'Hagar' || PERSON === 'Mostafa');
+const OTHER = PERSON === 'Hagar' ? 'Mostafa' : 'Hagar';
+
+const DEFAULTS = { rounds: 4, layout: 'strip', frame: 'pink', filter: 'none', seconds: 3, mirror: true, caption: '' };
+const FRAMES = {
+  pink:  { bg: '#f4b8c8', ink: '#4a1628', name: 'وردي' },
+  white: { bg: '#ffffff', ink: '#3b1626', name: 'أبيض' },
+  black: { bg: '#1a1014', ink: '#f8dce4', name: 'أسود' },
+  cream: { bg: '#f5e6d3', ink: '#5a3a2a', name: 'كريمي' },
+  red:   { bg: '#c8344b', ink: '#ffffff', name: 'أحمر' }
+};
+const OPTIONS = [
+  { key: 'rounds', label: 'عدد اللقطات', items: [[2, '٢'], [3, '٣'], [4, '٤']] },
+  { key: 'layout', label: 'شكل الشريط', items: [['strip', 'شريط طولي'], ['grid', 'شبكة']] },
+  { key: 'frame', label: 'لون الفريم', swatch: true },
+  { key: 'filter', label: 'الفلتر', items: [['none', 'عادي'], ['bw', 'أبيض وأسود'], ['warm', 'دافئ'], ['soft', 'ناعم']] },
+  { key: 'seconds', label: 'العد التنازلي', items: [[3, '٣ ثواني'], [5, '٥ ثواني']] },
+  { key: 'mirror', label: 'مرآة الكاميرا', items: [[true, 'شغّالة'], [false, 'مقفولة']] }
+];
+
+/* ---------- الحالة ---------- */
+let code = '', isHost = false, room = null;
+let unsubRoom = null, unsubRtc = null;
+let stream = null, camReady = false;
+let busy = false, lastCmdId = '', advancedFor = '', composed = false;
+let finalBlob = null, resultUrl = '';
+let lastSettingsJSON = '';
+
+const roomRef = c => doc(db, 'memoryWall', 'booth_' + c);
+const rtcRef = c => doc(db, 'memoryWall', 'booth_' + c + '_rtc');
+
+function show(step) {
+  ['stepGate', 'stepRoom', 'stepBooth', 'stepResult'].forEach(id => { $(id).hidden = id !== step; });
+  window.scrollTo(0, 0);
+}
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 4000);
+}
+function errText(e, fallback) {
+  const c = e && e.code || '';
+  if (c === 'permission-denied' || c.startsWith('auth/')) return 'Firebase مانع العملية. لازم نظبط Rules بتاعة Firestore (الخطوات في الرسالة اللي معاك).';
+  if (c === 'unavailable' || !navigator.onLine) return 'مفيش إنترنت دلوقتي. جرّبوا تاني لما يرجع.';
+  return fallback;
+}
+function makeCode() {
+  const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; let s = '';
+  for (let i = 0; i < 4; i++) s += a[Math.floor(Math.random() * a.length)];
+  return s;
+}
+const settings = () => Object.assign({}, DEFAULTS, room && room.settings);
+
+/* ---------- البداية ---------- */
+document.querySelectorAll('.otherName').forEach(n => { n.textContent = label(OTHER); });
+if (!LOGGED) show('stepGate'); else show('stepRoom');
+
+$('btnCreate').addEventListener('click', async () => {
+  $('roomErr').textContent = '';
+  $('btnCreate').disabled = true;
+  try {
+    await sessionReady;
+    let c = '';
+    for (let i = 0; i < 8; i++) {
+      c = makeCode();
+      if (!(await getDoc(roomRef(c))).exists()) break;
+    }
+    await setDoc(roomRef(c), { host: PERSON, settings: DEFAULTS, status: 'waiting', members: { [PERSON]: Date.now() }, ready: {}, shots: {}, cmd: null, savedBy: null, createdAt: Date.now() });
+    await setDoc(rtcRef(c), { hostIce: [], guestIce: [], offer: null, answer: null, forTs: 0 });
+    enterRoom(c, true);
+  } catch (e) { $('roomErr').textContent = errText(e, 'مقدرناش نعمل الغرفة. جرّبوا تاني.'); }
+  finally { $('btnCreate').disabled = false; }
+});
+
+$('btnJoin').addEventListener('click', async () => {
+  const c = $('joinInput').value.trim().toUpperCase();
+  $('roomErr').textContent = '';
+  if (c.length !== 4) { $('roomErr').textContent = 'الكود 4 حروف.'; return; }
+  $('btnJoin').disabled = true;
+  try {
+    await sessionReady;
+    const snap = await getDoc(roomRef(c));
+    if (!snap.exists()) { $('roomErr').textContent = 'مفيش غرفة بالكود ده.'; return; }
+    const d = snap.data();
+    if (d.host === PERSON) { enterRoom(c, true); return; }
+    await updateDoc(roomRef(c), { ['members.' + PERSON]: Date.now() });
+    enterRoom(c, false);
+  } catch (e) { $('roomErr').textContent = errText(e, 'مقدرناش ندخل الغرفة. جرّبوا تاني.'); }
+  finally { $('btnJoin').disabled = false; }
+});
+
+function enterRoom(c, host) {
+  code = c; isHost = host; composed = false; lastCmdId = ''; advancedFor = '';
+  $('roomCode').textContent = c;
+  $('tagMe').textContent = label(PERSON);
+  $('tagOther').textContent = label(OTHER);
+  $('pillMe').textContent = label(PERSON) + ' ✓';
+  $('pillMe').classList.add('on');
+  $('optsSub').textContent = host ? 'إنت اللي عملت الغرفة، فإنت اللي بتختار الإعدادات.' : label(OTHER) + ' هي اللي بتختار الإعدادات.';
+  $('btnStart').hidden = !host;
+  $('capIn').disabled = !host;
+  show('stepBooth');
+  unsubRoom = onSnapshot(roomRef(c), snap => onRoom(snap), e => { $('boothErr').textContent = errText(e, 'اتقطع الاتصال بالغرفة.'); });
+  startCamera();
+}
+
+/* ---------- الكاميرا ---------- */
+async function startCamera() {
+  $('meNote').hidden = true; $('btnRetryCam').hidden = true; $('boothErr').textContent = '';
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('nocam');
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 720 } }, audio: false });
+    $('vidMe').srcObject = stream;
+    camReady = true;
+    await updateDoc(roomRef(code), { ['ready.' + PERSON]: true });
+    setupRtc();
+  } catch (e) {
+    camReady = false;
+    $('meNote').hidden = false;
+    $('meNote').textContent = 'الكاميرا مش شغالة. اسمحوا للمتصفح يفتحها وجرّبوا تاني.';
+    $('btnRetryCam').hidden = false;
+  }
+}
+$('btnRetryCam').addEventListener('click', startCamera);
+
+/* ---------- الفيديو المباشر (WebRTC) والإشارات عبر Firestore ---------- */
+const ICE = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
+let pc = null, negTs = 0, handledOfferTs = 0, appliedIce = 0, rtcTimer = null, lastRtc = null, rtcStarted = false;
+
+function setOtherNote(text) { const n = $('otherNote'); n.textContent = text || ''; n.hidden = !text; }
+
+function newPc() {
+  if (pc) { try { pc.close(); } catch (e) {} }
+  appliedIce = 0;
+  pc = new RTCPeerConnection(ICE);
+  stream.getTracks().forEach(t => pc.addTrack(t, stream));
+  pc.ontrack = ev => { $('vidOther').srcObject = ev.streams[0]; };
+  pc.onconnectionstatechange = () => {
+    if (!pc) return;
+    if (pc.connectionState === 'connected') { clearTimeout(rtcTimer); setOtherNote(''); }
+    if (pc.connectionState === 'failed') setOtherNote('الفيديو مش واصل. هتشوفوا بعض في الشريط الأخير.');
+  };
+  clearTimeout(rtcTimer);
+  rtcTimer = setTimeout(() => { if (pc && pc.connectionState !== 'connected') setOtherNote('الفيديو المباشر مش واصل. التصوير هيشتغل عادي وهتشوفوا بعض في الشريط.'); }, 15000);
+  return pc;
+}
+function iceSender(isHostSide, ready) {
+  const field = isHostSide ? 'hostIce' : 'guestIce', pend = []; let open = false;
+  pc.onicecandidate = ev => {
+    if (!ev.candidate) return;
+    const s = JSON.stringify(ev.candidate);
+    if (open) updateDoc(rtcRef(code), { [field]: arrayUnion(s) }).catch(() => {}); else pend.push(s);
+  };
+  return async () => {
+    open = true;
+    if (pend.length) await updateDoc(rtcRef(code), { [field]: arrayUnion(...pend) }).catch(() => {});
+  };
+}
+async function processIce() {
+  if (!pc || !pc.remoteDescription || !lastRtc) return;
+  const list = (isHost ? lastRtc.guestIce : lastRtc.hostIce) || [];
+  while (appliedIce < list.length) {
+    const c = list[appliedIce++];
+    try { await pc.addIceCandidate(JSON.parse(c)); } catch (e) {}
+  }
+}
+async function startOffer(guestTs) {
+  if (!camReady || !stream || typeof RTCPeerConnection === 'undefined') return;
+  negTs = guestTs;
+  setOtherNote('بنوصّل الفيديو...');
+  newPc();
+  const flush = iceSender(true);
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  await setDoc(rtcRef(code), { hostIce: [], guestIce: [], offer: { type: offer.type, sdp: offer.sdp }, answer: null, forTs: guestTs });
+  await flush();
+}
+function setupRtc() {
+  if (rtcStarted || typeof RTCPeerConnection === 'undefined') { if (typeof RTCPeerConnection === 'undefined') setOtherNote('المتصفح ده مش بيدعم الفيديو المباشر. هتشوفوا بعض في الشريط.'); return; }
+  rtcStarted = true;
+  unsubRtc = onSnapshot(rtcRef(code), snap => { const d = snap.data(); if (d) { lastRtc = d; handleRtc(); } }, () => {});
+  handleRtc();
+}
+async function handleRtc() {
+  const d = lastRtc; if (!d) return;
+  {
+    try {
+      if (isHost) {
+        if (d.forTs === negTs && negTs && d.answer && pc && !pc.remoteDescription) {
+          await pc.setRemoteDescription(d.answer);
+        }
+      } else {
+        const myTs = (room && room.members && room.members[PERSON]) || 0;
+        if (d.offer && d.forTs === myTs && handledOfferTs !== myTs && camReady) {
+          handledOfferTs = myTs;
+          newPc();
+          const flush = iceSender(false);
+          await pc.setRemoteDescription(d.offer);
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          await updateDoc(rtcRef(code), { answer: { type: answer.type, sdp: answer.sdp } });
+          await flush();
+        }
+      }
+      await processIce();
+    } catch (e) { setOtherNote('الفيديو المباشر مش واصل. التصوير هيشتغل عادي.'); }
+  }
+}
+
+/* ---------- الغرفة: كل التغييرات بتيجي من هنا ---------- */
+let lastGuestTs = 0;
+function onRoom(snap) {
+  if (!snap.exists()) { toast('الغرفة اتقفلت.'); leave(false); return; }
+  const d = snap.data(); room = d;
+  const s = settings();
+
+  // مين موجود
+  const otherIn = Boolean(d.members && d.members[OTHER]);
+  $('pillOther').textContent = label(OTHER) + (otherIn ? ' ✓' : ' (لسه)');
+  $('pillOther').classList.toggle('on', otherIn);
+  if (!otherIn) setOtherNote('مستنيين ' + label(OTHER) + ' تدخل بالكود...');
+  else if (!pc && !(d.ready && d.ready[OTHER])) setOtherNote(label(OTHER) + ' داخلة، مستنيين الكاميرا...');
+
+  // الفيديو المباشر: المضيف يبدأ لما التاني يدخل وكاميرته جاهزة
+  if (isHost && otherIn && camReady) {
+    const gts = d.members[OTHER];
+    if (gts !== lastGuestTs) { lastGuestTs = gts; startOffer(gts).catch(() => setOtherNote('الفيديو المباشر مش واصل. التصوير هيشتغل عادي.')); }
+  }
+
+  if (!isHost && lastRtc && rtcStarted) handleRtc();
+
+  // الإعدادات
+  renderOptions(s);
+  $('cams').classList.remove('f-bw', 'f-warm', 'f-soft');
+  if (s.filter !== 'none') $('cams').classList.add('f-' + s.filter);
+  $('camMe').classList.toggle('mirror', s.mirror);
+  $('camOther').classList.toggle('mirror', s.mirror);
+  if (document.activeElement !== $('capIn')) $('capIn').value = s.caption || '';
+  renderDots(countShots(d, true), s.rounds);
+
+  // زرار البدء
+  const bothReady = Boolean(d.ready && d.ready.Hagar && d.ready.Mostafa);
+  $('btnStart').disabled = !(isHost && bothReady && d.status !== 'running');
+  if (d.status === 'running') $('boothStatus').textContent = $('boothStatus').textContent || 'جاري التصوير...';
+  else if (!composed) $('boothStatus').textContent = bothReady ? (isHost ? 'الاتنين جاهزين. دوس ابدأ.' : 'مستنيين ' + label(d.host) + ' يبدأ التصوير.') : (otherIn ? 'مستنيين الكاميرتين يفتحوا...' : '');
+
+  // أمر جولة جديدة
+  if (d.status === 'running' && d.cmd && d.cmd.id !== lastCmdId) { lastCmdId = d.cmd.id; runRound(d.cmd.round); }
+
+  // المضيف يمشّي الجولات
+  if (isHost && d.status === 'running' && d.cmd && advancedFor !== d.cmd.id && hasBoth(d, d.cmd.round)) {
+    advancedFor = d.cmd.id;
+    const r = d.cmd.round;
+    setTimeout(() => {
+      const next = r + 1 < s.rounds ? updateDoc(roomRef(code), { cmd: { round: r + 1, id: uid() } }) : updateDoc(roomRef(code), { status: 'done' });
+      next.catch(() => {});
+    }, 1100);
+  }
+
+  // الشريط خلص
+  if (!composed && allShots(d, s.rounds)) { composed = true; finish(d, s).catch(() => { composed = false; $('boothErr').textContent = 'حصلت مشكلة في تركيب الشريط.'; }); }
+
+  // رجعوا يصوروا تاني
+  if (composed && d.status === 'waiting') { composed = false; lastCmdId = ''; $('boothStatus').textContent = ''; show('stepBooth'); }
+
+  // الحيطة
+  const saved = Boolean(d.savedBy);
+  $('btnWall').disabled = saved;
+  $('btnWall').textContent = saved ? 'اتعلّقت على الحيطة ✓' : 'علّق على الحيطة';
+  $('btnAgain').hidden = !isHost;
+  $('againHint').hidden = isHost;
+  $('againHint').textContent = isHost ? '' : 'لو عايزين تصوروا تاني، ' + label(d.host) + ' هو اللي بيدوس "صوّروا تاني".';
+}
+
+const hasBoth = (d, i) => Boolean(d.shots && d.shots.Hagar && d.shots.Hagar[i] && d.shots.Mostafa && d.shots.Mostafa[i]);
+function allShots(d, n) { for (let i = 0; i < n; i++) if (!hasBoth(d, i)) return false; return n > 0; }
+function countShots(d, both) { let c = 0; const n = settings().rounds; for (let i = 0; i < n; i++) if (hasBoth(d, i)) c++; return c; }
+
+function renderDots(done, n) {
+  const h = $('dots'); h.innerHTML = '';
+  for (let i = 0; i < n; i++) { const s = document.createElement('span'); s.className = 'dot' + (i < done ? ' done' : ''); h.appendChild(s); }
+}
+
+function renderOptions(s) {
+  const json = JSON.stringify(s) + (isHost ? 'h' : 'g') + (room && room.status === 'running' ? 'r' : '');
+  if (json === lastSettingsJSON) return;
+  lastSettingsJSON = json;
+  const locked = !isHost || (room && room.status === 'running');
+  const host = $('opts'); host.innerHTML = '';
+  OPTIONS.forEach(o => {
+    const wrap = document.createElement('div'); wrap.className = 'opt';
+    wrap.innerHTML = '<span class="lbl"></span>'; wrap.firstChild.textContent = o.label;
+    const chips = document.createElement('div'); chips.className = 'chips';
+    if (o.swatch) {
+      Object.keys(FRAMES).forEach(k => {
+        const b = document.createElement('button');
+        b.className = 'sw'; b.style.background = FRAMES[k].bg; b.disabled = locked;
+        b.setAttribute('aria-label', FRAMES[k].name); b.setAttribute('aria-pressed', String(s.frame === k));
+        b.addEventListener('click', () => setSetting('frame', k));
+        chips.appendChild(b);
+      });
+    } else {
+      o.items.forEach(it => {
+        const b = document.createElement('button');
+        b.className = 'chip'; b.textContent = it[1]; b.disabled = locked;
+        b.setAttribute('aria-pressed', String(s[o.key] === it[0]));
+        b.addEventListener('click', () => setSetting(o.key, it[0]));
+        chips.appendChild(b);
+      });
+    }
+    wrap.appendChild(chips); host.appendChild(wrap);
+  });
+}
+function setSetting(key, value) {
+  updateDoc(roomRef(code), { ['settings.' + key]: value }).catch(e => { $('boothErr').textContent = errText(e, 'الإعداد ما اتغيّرش.'); });
+}
+$('capIn').addEventListener('change', () => { if (isHost) setSetting('caption', $('capIn').value.trim().slice(0, 40)); });
+
+/* ---------- التصوير ---------- */
+$('btnStart').addEventListener('click', async () => {
+  $('boothErr').textContent = '';
+  try {
+    $('btnStart').disabled = true;
+    $('capIn').blur();
+    await updateDoc(roomRef(code), { status: 'running', shots: {}, savedBy: null, cmd: { round: 0, id: uid() } });
+  } catch (e) { $('boothErr').textContent = errText(e, 'مقدرناش نبدأ. جرّبوا تاني.'); $('btnStart').disabled = false; }
+});
+
+async function countdown(n) {
+  const ov = $('overlay'), num = $('count');
+  ov.classList.add('on');
+  for (let i = n; i >= 1; i--) { num.textContent = String(i); await wait(1000); }
+  ov.classList.remove('on');
+}
+function flash() { const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
+
+const S = 400;
+function applyFilter(ctx, w, h, type) {
+  if (type === 'none') return;
+  const img = ctx.getImageData(0, 0, w, h), d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    let r = d[i], g = d[i + 1], b = d[i + 2];
+    if (type === 'bw') { let y = 0.299 * r + 0.587 * g + 0.114 * b; y = (y - 128) * 1.05 + 128; r = g = b = y; }
+    else if (type === 'warm') { r = r * 1.08 + 8; g = g * 1.02 + 2; b = b * 0.88; }
+    else if (type === 'soft') { r = (r - 128) * 0.88 + 142; g = (g - 128) * 0.88 + 142; b = (b - 128) * 0.88 + 142; }
+    d[i] = r < 0 ? 0 : r > 255 ? 255 : r; d[i + 1] = g < 0 ? 0 : g > 255 ? 255 : g; d[i + 2] = b < 0 ? 0 : b > 255 ? 255 : b;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+function snap(video, s) {
+  const c = document.createElement('canvas'); c.width = c.height = S;
+  const x = c.getContext('2d');
+  const vw = video.videoWidth, vh = video.videoHeight, m = Math.min(vw, vh);
+  if (s.mirror) { x.translate(S, 0); x.scale(-1, 1); }
+  x.drawImage(video, (vw - m) / 2, (vh - m) / 2, m, m, 0, 0, S, S);
+  x.setTransform(1, 0, 0, 1, 0, 0);
+  applyFilter(x, S, S, s.filter);
+  return c;
+}
+
+async function runRound(i) {
+  if (busy) return; busy = true;
+  const s = settings();
+  try {
+    $('boothStatus').textContent = 'لقطة ' + (i + 1) + ' من ' + s.rounds + ' — ابتسموا';
+    await countdown(s.seconds);
+    flash();
+    const c = snap($('vidMe'), s);
+    await updateDoc(roomRef(code), { ['shots.' + PERSON + '.' + i]: c.toDataURL('image/jpeg', 0.72) });
+  } catch (e) { $('boothErr').textContent = errText(e, 'اللقطة ما اتحفظتش.'); }
+  finally { busy = false; }
+}
+
+/* ---------- تركيب الشريط ---------- */
+function loadImg(src) { return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; }); }
+function rr(ctx, x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+async function finish(d, s) {
+  $('boothStatus').textContent = 'بنجهّز الشريط...';
+  const n = s.rounds, shots = [];
+  for (let i = 0; i < n; i++) {
+    const [m, h] = await Promise.all([loadImg(d.shots.Mostafa[i]), loadImg(d.shots.Hagar[i])]);
+    shots.push({ m, h });
+  }
+  try { await document.fonts.load('800 40px Tajawal'); } catch (e) {}
+  const fr = FRAMES[s.frame] || FRAMES.pink;
+  const pad = 28, gap = 18, footer = 160; let cell, W, H;
+  if (s.layout === 'strip') { cell = 340; W = pad * 2 + cell * 2 + gap; H = pad + n * (cell + gap) - gap + footer; }
+  else { cell = Math.min(300, Math.floor((1400 - pad * 2 - (n - 1) * gap) / n)); W = pad * 2 + n * cell + (n - 1) * gap; H = pad + cell * 2 + gap + footer; }
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  x.fillStyle = fr.bg; x.fillRect(0, 0, W, H);
+  const put = (im, px, py) => { x.save(); rr(x, px, py, cell, cell, 10); x.clip(); x.drawImage(im, px, py, cell, cell); x.restore(); };
+  shots.forEach((sh, i) => {
+    if (s.layout === 'strip') { const y = pad + i * (cell + gap); put(sh.m, pad, y); put(sh.h, pad + cell + gap, y); }
+    else { const px = pad + i * (cell + gap); put(sh.m, px, pad); put(sh.h, px, pad + cell + gap); }
+  });
+  const date = new Intl.DateTimeFormat('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+  x.fillStyle = fr.ink; x.textAlign = 'center'; x.textBaseline = 'middle'; x.direction = 'rtl';
+  x.font = '800 40px Tajawal, sans-serif'; x.fillText('هاجر ♥ مصطفى', W / 2, H - footer / 2 - 18);
+  x.globalAlpha = .8; x.font = '500 26px Tajawal, sans-serif'; x.fillText((s.caption || '').trim() || date, W / 2, H - footer / 2 + 28); x.globalAlpha = 1;
+  finalBlob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.92));
+  if (resultUrl) URL.revokeObjectURL(resultUrl);
+  resultUrl = URL.createObjectURL(finalBlob);
+  $('resultImg').src = resultUrl;
+  $('resultErr').textContent = '';
+  show('stepResult');
+  if (isHost) deleteDoc(rtcRef(code)).catch(() => {});
+}
+
+/* ---------- النتيجة ---------- */
+const todayLocal = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+
+$('btnWall').addEventListener('click', async () => {
+  const btn = $('btnWall'); if (btn.disabled || !finalBlob) return;
+  btn.disabled = true; btn.textContent = 'جاري الرفع...'; $('resultErr').textContent = '';
+  try {
+    await sessionReady;
+    const body = new FormData();
+    body.append('file', finalBlob, 'photobooth.jpg');
+    body.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    body.append('folder', 'hagar-mostafa');
+    const res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD_NAME + '/image/upload', { method: 'POST', body });
+    const out = await res.json();
+    if (!res.ok || !out.secure_url) throw new Error((out.error && out.error.message) || 'cloud-upload-failed');
+    const item = { type: 'image', data: out.secure_url, name: 'فوتوبوث' };
+    const date = todayLocal();
+    const next = await runTransaction(db, async tx => {
+      const s = await tx.get(memoriesDocument);
+      const groups = (s.data() && s.data().groups) || [];
+      const g = groups.find(x => x.date === date);
+      if (g) g.items.push(item); else groups.push({ date, items: [item] });
+      tx.set(memoriesDocument, { groups, updatedAt: Date.now() }, { merge: true });
+      return groups;
+    });
+    try { localStorage.setItem(LS_MEMORIES, JSON.stringify(next)); } catch (e) {}
+    await updateDoc(roomRef(code), { savedBy: PERSON }).catch(() => {});
+    toast('اتعلّق على الحيطة ♥');
+  } catch (e) {
+    btn.disabled = false; btn.textContent = 'علّق على الحيطة';
+    $('resultErr').textContent = errText(e, 'مقدرناش نعلّقه على الحيطة. جرّبوا تاني.');
+  }
+});
+
+$('btnDownload').addEventListener('click', () => {
+  if (!resultUrl) return;
+  const a = document.createElement('a');
+  a.href = resultUrl; a.download = 'photobooth-hagar-mostafa.jpg';
+  document.body.appendChild(a); a.click(); a.remove();
+});
+
+$('btnAgain').addEventListener('click', () => {
+  if (!isHost) return;
+  updateDoc(roomRef(code), { status: 'waiting', shots: {}, cmd: null, savedBy: null }).catch(e => { $('resultErr').textContent = errText(e, 'مقدرناش نبدأ من جديد.'); });
+});
+
+async function leave(deleteRoom = true) {
+  try { if (unsubRoom) unsubRoom(); if (unsubRtc) unsubRtc(); } catch (e) {}
+  try { if (pc) pc.close(); } catch (e) {}
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  if (isHost && deleteRoom && code) { try { await deleteDoc(roomRef(code)); await deleteDoc(rtcRef(code)); } catch (e) {} }
+  location.href = './';
+}
+$('btnLeave').addEventListener('click', () => leave(true));
+$('btnLeave2').addEventListener('click', () => leave(true));
+</script>
+</body>
+</html>
