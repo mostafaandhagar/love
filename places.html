@@ -352,7 +352,7 @@
       <button class="close-button" type="button" data-close="addModal" aria-label="إغلاق">×</button>
       <div class="modal-heart">✈</div>
       <h2>مكان جديد في القايمة</h2>
-      <label>اسم المكان<input id="placeName" maxlength="60" required placeholder="مثلاً: سينما" /></label>
+      <label>اسم المكان<input id="placeName" maxlength="60" required placeholder="مثلاً: سيوة" /></label>
       <label>النوع<select id="placeCat"></select></label>
       <label>ليه نفسنا نروحه؟<textarea id="placeNote" maxlength="300" placeholder="اختياري… بس حلو نفتكر السبب"></textarea></label>
       <p class="form-error" id="addError"></p>
@@ -370,7 +370,7 @@
       <label>يوم الزيارة<input id="visitDate" type="date" required /></label>
       <label class="upload-label">صور أو فيديوهات (اختياري)
         <input id="visitFiles" type="file" accept="image/*,video/*" multiple />
-        <span class="upload-box" id="visitUploadBox">اضغطوا لاختيار الصور</span>
+        <span class="upload-box" id="visitUploadBox">اضغطوا لاختيار الملفات</span>
       </label>
       <div class="upload-progress" id="visitBar" hidden><i></i></div>
       <p class="form-error" id="visitError"></p>
@@ -433,11 +433,18 @@
 
     const LS = { places: 'hagar-mostafa-dream-places-v1', lights: 'hagar-mostafa-lights' };
     const CATEGORIES = {
-      trip:  { label: 'سفر',          emoji: '🚙' },
+      trip:  { label: 'سفر',          emoji: '✈️' },
       food:  { label: 'أكل',          emoji: '🍽️' },
       out:   { label: 'خروجة',        emoji: '🌅' },
+      small: { label: 'حاجة صغيرة',   emoji: '🧸' }
     };
-  
+    const IDEAS = [
+      { name: 'كورنيش الإسكندرية عند الغروب', category: 'out',   note: 'نمشي ونشرب حاجة سخنة والموج جنبنا.' },
+      { name: 'سيوة',                          category: 'trip',  note: 'الهدوء، والنجوم، والعين الدافية.' },
+      { name: 'دهب',                           category: 'trip',  note: 'بحر ومفيش حد يستعجلنا.' },
+      { name: 'عشاء على النيل',                category: 'food',  note: 'أول عشاء بجد، شمع وموسيقى هادية.' },
+      { name: 'سينما بالليل',                  category: 'small', note: 'فيلم نختاره سوا وفشار كتير.' }
+    ];
 
     const $ = s => document.querySelector(s);
     const nf = new Intl.NumberFormat('ar-EG');
@@ -449,6 +456,9 @@
     const cloudUrl = (u, t) => (u.includes('res.cloudinary.com') && u.includes('/upload/') ? u.replace('/upload/', `/upload/${t}/`) : u);
     const thumbUrl = u => cloudUrl(u, 'f_auto,q_auto,w_600,c_limit');
     const fullUrl = u => cloudUrl(u, 'f_auto,q_auto,w_1600,c_limit');
+    /* ثمنيل الفيديو: Cloudinary بيطلّع صورة من أول ثانية لو الامتداد بقى .jpg */
+    const posterUrl = u => (u.includes('res.cloudinary.com') && u.includes('/video/upload/')
+      ? u.replace('/upload/', '/upload/so_0,f_jpg,q_auto,w_600,c_limit/').replace(/\.[^./]+$/, '.jpg') : '');
     const personLabel = p => (p === 'Hagar' ? 'هاجر' : 'مصطفى');
     const readCache = () => { try { return JSON.parse(localStorage.getItem(LS.places)) ?? []; } catch { return []; } };
 
@@ -590,14 +600,20 @@
       $('#meterFill').style.transform = `scaleY(${total ? done / total : 0})`;
       $('#progressNote').textContent = !total ? 'القايمة لسه فاضية' : done === total ? 'خلّصنا القايمة كلها. وقت قايمة جديدة!' : `فاضل ${nf.format(total - done)} مكان نحققهم`;
     }
-    const coverOf = p => (p.photos || []).find(x => x?.type === 'image' && safeUrl(x.data));
+    const coverOf = p => {
+      const list = (p.photos || []).filter(x => x && safeUrl(x.data));
+      const image = list.find(x => x.type === 'image');
+      if (image) return thumbUrl(image.data);
+      for (const x of list) { const poster = x.type === 'video' ? posterUrl(x.data) : ''; if (poster) return poster; }
+      return '';
+    };
 
     function buildTicket(place) {
       const cat = CATEGORIES[place.category] || CATEGORIES.out, cover = place.done ? coverOf(place) : null;
       const wrap = el('div', `ticket-wrap${place.id === justDoneId ? ' just-done' : ''}`);
       wrap.dataset.id = place.id;
       const ticket = el('div', `ticket${place.done ? ' done' : ''}${cover ? ' has-cover' : ''}`);
-      if (cover) ticket.style.setProperty('--cover', `url("${thumbUrl(cover.data).replace(/"/g, '%22')}")`);
+      if (cover) ticket.style.setProperty('--cover', `url("${cover.replace(/"/g, '%22')}")`);
 
       const main = el('button', 'ticket-main'); main.type = 'button';
       main.setAttribute('aria-label', `تفاصيل ${place.name}`);
@@ -612,7 +628,7 @@
       heart.setAttribute('aria-label', place.done ? `رجّع ${place.name} لقايمة لسه` : `علّم إننا روحنا ${place.name}`);
       heart.innerHTML = '<svg viewBox="0 0 32 29" aria-hidden="true"><path d="M16 27C16 27 3 18.5 3 9.8C3 5.5 6 3 9.6 3C12.4 3 14.8 4.5 16 7C17.2 4.5 19.6 3 22.4 3C26 3 29 5.5 29 9.8C29 18.5 16 27 16 27Z"/></svg>';
       heart.onclick = event => toggleDone(place, event);
-      stub.append(heart, place.done ? el('span', 'stamp', 'روحناه') : el('span', 'stub-label', 'نفسنا'));
+      stub.append(heart, place.done ? el('span', 'stamp', 'اتزرنا') : el('span', 'stub-label', 'نفسنا'));
 
       ticket.append(main, stub); wrap.append(ticket);
       return wrap;
@@ -744,8 +760,9 @@
           photos.forEach((item, i) => {
             const fig = el('figure', `polaroid${item.type === 'video' ? ' is-video' : ''}`); fig.style.setProperty('--r', `${[-2.5, 2, -1.5, 3, -2, 1.5][i % 6]}deg`);
             let media;
-            if (item.type === 'video') { media = document.createElement('video'); media.src = thumbUrl(item.data); media.muted = true; media.playsInline = true; media.preload = 'metadata'; }
-            else { media = document.createElement('img'); media.src = thumbUrl(item.data); media.alt = item.name || 'صورة'; media.loading = 'lazy'; }
+            const poster = item.type === 'video' ? posterUrl(item.data) : '';
+            if (item.type === 'video' && !poster) { media = document.createElement('video'); media.src = `${item.data}#t=0.1`; media.muted = true; media.playsInline = true; media.preload = 'metadata'; }
+            else { media = document.createElement('img'); media.src = poster || thumbUrl(item.data); media.alt = item.name || 'صورة'; media.loading = 'lazy'; }
             fig.append(media, el('figcaption', '', dateLabel(place.date)));
             fig.onclick = () => openLightbox(photos, i, place);
             if (loggedIn) {
