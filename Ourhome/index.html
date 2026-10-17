@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>لوحة أحلامنا</title>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--base:#fff1e8;--ink:#2d1640;--soft:#6e5486;--gold:#b8741a;--rose:#e0407a;--line:rgba(120,70,110,.28);--card:rgba(255,250,245,.82);--ov:rgba(255,238,230,.5);--g1:#ff5d8f;--g2:#ff9770;--chip:rgba(255,255,255,.55);--glow:#ffc86b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--base:#1a0a2a;--ink:#fff1e6;--soft:#d3bde6;--gold:#ffd89a;--rose:#ff7aa8;--line:rgba(255,220,240,.22);--card:rgba(34,16,56,.62);--ov:rgba(16,6,30,.58);--chip:rgba(255,255,255,.09)}}
+:root[data-theme="dark"]{--base:#1a0a2a;--ink:#fff1e6;--soft:#d3bde6;--gold:#ffd89a;--rose:#ff7aa8;--line:rgba(255,220,240,.22);--card:rgba(34,16,56,.62);--ov:rgba(16,6,30,.58);--chip:rgba(255,255,255,.09)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--base);color:var(--ink);font-family:Cairo,system-ui,sans-serif;line-height:1.7;overflow-x:hidden}
+#bg{position:fixed;inset:-4%;z-index:-3;background:radial-gradient(circle at 18% 22%,rgba(255,93,143,.5),transparent 45%),radial-gradient(circle at 82% 28%,rgba(139,92,246,.45),transparent 45%),radial-gradient(circle at 50% 92%,rgba(255,151,112,.45),transparent 50%);background-size:cover;background-position:center;animation:kb 30s ease-in-out infinite alternate}
+#ov{position:fixed;inset:0;z-index:-2;background:var(--ov);display:none}
+body.photo #ov{display:block}
+@keyframes kb{to{transform:scale(1.08) translate(1.5%,-1%)}}
+.hearts{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.hearts span{position:absolute;bottom:-40px;opacity:0;animation:rise linear infinite}
+@keyframes rise{10%{opacity:.5}to{transform:translateY(-110vh) translateX(var(--sx)) rotate(30deg);opacity:0}}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px 70px;position:relative}
+header{text-align:center;padding:34px 0 6px}
+h1{font-family:"Aref Ruqaa",Cairo,serif;font-size:clamp(44px,10vw,76px);margin:0;line-height:1.25;background:linear-gradient(90deg,var(--gold),var(--rose),var(--gold));background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sh 7s linear infinite}
+@keyframes sh{to{background-position:200% center}}
+header p{margin:0;color:var(--soft)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin:18px 0 10px}
+.who{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:14px;color:var(--soft)}
+.chip{border:1.5px solid var(--line);background:var(--chip);backdrop-filter:blur(8px);color:var(--ink);padding:5px 15px;border-radius:999px;font:inherit;font-size:15px;cursor:pointer;white-space:nowrap;transition:transform .2s,box-shadow .2s}
+.chip:hover{transform:translateY(-2px)}
+.chip:active{transform:scale(.95)}
+.chip[aria-pressed="true"]{background:linear-gradient(135deg,var(--g1),var(--g2));border-color:transparent;color:#fff;font-weight:700;box-shadow:0 6px 16px -4px var(--g1)}
+.count{color:var(--soft);font-size:15px}.count b{font-family:"Aref Ruqaa";font-size:30px;color:var(--rose)}
+.count input{font:inherit;font-size:13px;background:transparent;color:var(--ink);border:0;border-bottom:1px solid var(--line);width:125px}
+.scroll{display:flex;gap:8px;overflow-x:auto;padding:6px 2px}
+.sum{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 2px;color:var(--soft);font-size:14px}
+.add{background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;border:0;border-radius:14px;padding:10px 20px;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 8px 20px -6px var(--g1);transition:transform .2s,box-shadow .2s}
+.add:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 12px 24px -6px var(--g1)}
+.add:active{transform:scale(.96)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:36px 22px;padding:22px 0;align-items:start}
+.card{position:relative;background:var(--card);backdrop-filter:blur(14px) saturate(1.3);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:0 14px 30px rgba(0,0,0,.22);transform-origin:50% -12px;transition:transform .35s cubic-bezier(.3,1.4,.5,1),box-shadow .3s}
+.card:nth-child(3n+1){transform:rotate(-1.4deg)}.card:nth-child(3n+2){transform:rotate(1.2deg)}.card:nth-child(3n){transform:rotate(-.3deg)}
+.card:hover{transform:rotate(0) translateY(-8px) scale(1.025);box-shadow:0 22px 40px rgba(0,0,0,.3)}
+.card.in{animation:drop .8s cubic-bezier(.2,1.3,.4,1) backwards}
+@keyframes drop{from{opacity:0;transform:translateY(-50px) rotate(-8deg)}}
+.card::before{content:"";position:absolute;top:-14px;left:50%;width:14px;height:30px;margin-left:-7px;background:linear-gradient(var(--glow),var(--gold));border-radius:3px;box-shadow:0 2px 5px rgba(0,0,0,.35)}
+.pic{height:160px;border-radius:9px;background:linear-gradient(135deg,var(--g1),var(--g2));display:grid;place-items:center;font-size:50px;overflow:hidden}
+.pic img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s}
+.card:hover .pic img{transform:scale(1.08)}
+.card h3{margin:10px 0 0;font-size:18px;line-height:1.4}
+.card p{margin:2px 0 6px;color:var(--soft);font-size:15px}
+.meta{display:flex;justify-content:space-between;font-size:13px;color:var(--soft)}
+.react{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:center;margin-top:10px;font-size:13px;color:var(--soft)}
+.opts{display:flex;gap:5px}
+.r{border:1.5px solid var(--line);background:var(--chip);border-radius:999px;padding:1px 10px;font-size:16px;cursor:pointer;color:var(--ink);transition:transform .15s}
+.r:not(:disabled):hover{transform:scale(1.18)}
+.r.on{background:linear-gradient(135deg,var(--g1),var(--g2));border-color:transparent}
+.r.pop{animation:pop .5s cubic-bezier(.3,1.8,.5,1)}
+@keyframes pop{40%{transform:scale(1.6) rotate(-10deg)}}
+.r:disabled{cursor:default;opacity:.55}.r.on:disabled{opacity:1}
+.badge{position:absolute;top:-12px;right:-8px;z-index:2;font-size:12px;font-weight:700;border-radius:999px;padding:3px 11px;transform:rotate(5deg);box-shadow:0 4px 10px rgba(0,0,0,.25)}
+.b-ok{background:linear-gradient(135deg,#ffd27a,#ffab5e);color:#3a1a26;animation:bd 2.4s ease-in-out infinite}
+@keyframes bd{50%{transform:rotate(5deg) scale(1.1)}}
+.b-no{background:var(--soft);color:var(--base)}
+.card.done .pic{filter:grayscale(.7) opacity(.8)}
+.acts{display:flex;gap:4px;margin-top:10px;border-top:1px dashed var(--line);padding-top:6px}
+.mini{border:0;background:transparent;color:var(--soft);cursor:pointer;font:inherit;font-size:13px;padding:2px 8px;border-radius:8px;transition:background .2s,color .2s}
+.mini:hover{background:var(--chip);color:var(--ink)}
+.mini:last-child{margin-inline-start:auto}
+.cm{margin-top:6px;font-size:14px}
+.cm div{padding:3px 0}.cm b{color:var(--rose)}
+.cm form{display:flex;gap:6px;margin-top:6px}
+.cm input{flex:1;min-width:0;font:inherit;font-size:14px;padding:6px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--chip);color:var(--ink)}
+.cm button{border:0;background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;border-radius:10px;padding:0 14px;font:inherit;cursor:pointer}
+.empty{grid-column:1/-1;text-align:center;color:var(--soft);padding:40px 0}
+.cf{position:fixed;z-index:50;pointer-events:none;font-size:20px;animation:cf 1.2s ease-out forwards}
+@keyframes cf{to{transform:translate(var(--dx),var(--dy)) rotate(var(--rot));opacity:0}}
+dialog{border:1px solid var(--line);border-radius:18px;background:var(--card);backdrop-filter:blur(18px);color:var(--ink);padding:22px;width:min(420px,92vw)}
+dialog[open]{animation:dp .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes dp{from{opacity:0;transform:scale(.88)}}
+dialog::backdrop{background:rgba(10,5,25,.6)}
+dialog h2{margin:0 0 8px;color:var(--rose)}
+label{display:block;font-size:14px;color:var(--soft);margin-top:10px}
+dialog input[type=text],dialog input[type=number],textarea{width:100%;font:inherit;padding:9px 11px;border-radius:10px;border:1.5px solid var(--line);background:var(--chip);color:var(--ink)}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink);border-radius:14px;padding:9px 16px;font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="bg"></div><div id="ov"></div><div class="hearts" id="hearts"></div>
+<div class="wrap">
+<header><h1>لوحة أحلامنا</h1><p>هاجر ومصطفى، كل اللي نفسنا نعمله سوا</p></header>
+<div class="bar">
+  <div class="who">أنا:
+    <button class="chip" data-who="مصطفى">مصطفى</button>
+    <button class="chip" data-who="هاجر">هاجر</button>
+    <button class="chip" id="bgBtn">🖼️ صورتنا خلفية</button>
+    <button class="chip" id="bgOff" hidden>إزالة</button>
+    <input type="file" id="bgFile" accept="image/*" hidden>
+  </div>
+  <div class="count"><span id="cd"></span> <input type="date" id="wd" aria-label="تاريخ الفرح"></div>
+</div>
+<div class="scroll" id="tabs"></div>
+<div class="scroll" id="filters"></div>
+<div class="sum"><span id="sum"></span><button class="add" id="addBtn">+ فكرة جديدة</button></div>
+<div class="grid" id="grid"></div>
+</div>
+
+<dialog id="dlg">
+  <h2>فكرة جديدة</h2>
+  <label>صورة (اختياري)<input type="file" id="f_img" accept="image/*"></label>
+  <label>العنوان<input type="text" id="f_title" maxlength="50"></label>
+  <label>جملة عنها<textarea id="f_note" rows="2" maxlength="140"></textarea></label>
+  <label>تكلفة تقريبية بالجنيه (اختياري)<input type="number" id="f_cost" min="0"></label>
+  <div class="row"><button class="ghost" id="cancel">إلغاء</button><button class="add" id="save">علّقها على اللوحة</button></div>
+</dialog>
+
+<script>
+const SECS=[["home","🏡 بيتنا"],["wed","💍 فرحنا"],["moon","✈️ شهر العسل"],["more","🌟 أحلام تانية"]];
+const FIL=[["all","الكل"],["agreed","⭐ اتفقنا"],["open","لسه بنفكر"],["done","✅ اتحققت"]];
+const RX=[["love","❤️","عاجبني"],["maybe","🤔","مش متأكد"],["no","😅","مش أوي"]];
+const SEED=[
+ {id:1,s:"home",t:"ركن القهوة",note:"ركن صغير نقعد فيه كل صباح",by:"مصطفى",cost:3000,r:{"مصطفى":"love","هاجر":"love"},cm:[{by:"هاجر",t:"وأكيد فيه مكتبة صغيرة جنبه"}]},
+ {id:2,s:"home",t:"بلكونة فيها زرع",note:"وكرسيين وكوباية شاي",by:"هاجر",cost:2500,r:{"هاجر":"love","مصطفى":"maybe"},cm:[]},
+ {id:3,s:"wed",t:"كوشة بالورد البلدي",note:"ألوان هادية ودافية",by:"هاجر",cost:0,r:{"هاجر":"love"},cm:[]},
+ {id:4,s:"moon",t:"مكان على البحر",note:"أسبوع من غير شغل ولا موبايل",by:"مصطفى",cost:0,r:{"مصطفى":"love"},cm:[]},
+ {id:5,s:"more",t:"نطبخ أكلة جديدة كل شهر",note:"ونصورها",by:"مصطفى",cost:0,r:{"مصطفى":"love","هاجر":"love"},cm:[],done:true}];
+let st={who:"مصطفى",sec:"home",fil:"all",wd:"",cards:SEED},open={},first=true,pop=null,bgImg="";
+try{const x=localStorage.getItem("dreamboard2");if(x)st=Object.assign(st,JSON.parse(x))}catch(e){}
+try{bgImg=localStorage.getItem("dreambg")||""}catch(e){}
+const persist=()=>{try{localStorage.setItem("dreamboard2",JSON.stringify(st))}catch(e){alert("المساحة امتلأت، جرّبوا صور أصغر")}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const agreed=c=>c.r["مصطفى"]==="love"&&c.r["هاجر"]==="love";
+const tied=c=>c.r["مصطفى"]==="no"&&c.r["هاجر"]==="no";
+$("hearts").innerHTML=Array.from({length:14},(_,i)=>`<span style="left:${(i*7.3+3)%100}%;font-size:${14+(i*5)%16}px;animation-duration:${14+(i*3)%12}s;animation-delay:-${(i*4)%16}s;--sx:${(i%2?1:-1)*(20+i*4)}px">${i%3?"♥":"✨"}</span>`).join("");
+function setBg(){$("bg").style.backgroundImage=bgImg?`url(${bgImg})`:"";document.body.classList.toggle("photo",!!bgImg);$("bgOff").hidden=!bgImg}
+function burst(x,y){for(let i=0;i<22;i++){const s=document.createElement("span");s.className="cf";s.textContent=["❤️","✨","💖","⭐"][i%4];s.style.cssText=`left:${x}px;top:${y}px;--dx:${(Math.random()-.5)*280}px;--dy:${-60-Math.random()*200}px;--rot:${Math.random()*360}deg`;document.body.appendChild(s);setTimeout(()=>s.remove(),1300)}}
+
+function render(){
+  document.querySelectorAll("[data-who]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.who===st.who));
+  $("tabs").innerHTML=SECS.map(([k,n])=>`<button class="chip" data-sec="${k}" aria-pressed="${k===st.sec}">${n}</button>`).join("");
+  $("filters").innerHTML=FIL.map(([k,n])=>`<button class="chip" data-fil="${k}" aria-pressed="${k===st.fil}">${n}</button>`).join("");
+  const all=st.cards.filter(c=>c.s===st.sec);
+  const list=all.filter(c=>st.fil==="all"||(st.fil==="agreed"&&agreed(c))||(st.fil==="done"&&c.done)||(st.fil==="open"&&!c.done&&!agreed(c)));
+  const total=all.filter(c=>!tied(c)).reduce((a,c)=>a+(+c.cost||0),0);
+  $("sum").textContent=`اتفقنا على ${all.filter(agreed).length} من ${all.length}${total?" — التكلفة التقريبية "+total.toLocaleString("ar-EG")+" جنيه":""}`;
+  $("grid").innerHTML=list.length?list.map((c,i)=>{
+    const em=SECS.find(x=>x[0]===c.s)[1].split(" ")[0];
+    const badge=c.done?"":agreed(c)?'<span class="badge b-ok">⭐ اتفقنا</span>':tied(c)?'<span class="badge b-no">اتلغت</span>':"";
+    const rx=["مصطفى","هاجر"].map(n=>`<span>${n}</span><span class="opts">${RX.map(([k,e,l])=>`<button class="r ${c.r[n]===k?"on":""} ${pop&&pop.id==c.id&&pop.n===n&&pop.k===k?"pop":""}" data-r="${c.id}" data-n="${n}" data-k="${k}" title="${l}" aria-label="${n}: ${l}" ${n!==st.who?"disabled":""}>${e}</button>`).join("")}</span>`).join("");
+    const cms=open[c.id]?`<div class="cm">${c.cm.map(m=>`<div><b>${esc(m.by)}:</b> ${esc(m.t)}</div>`).join("")}<form data-cf="${c.id}"><input placeholder="اكتب تعليق..." maxlength="120" aria-label="تعليق"><button>ابعت</button></form></div>`:"";
+    return `<article class="card ${c.done?"done":""} ${first?"in":""}" style="${first?`animation-delay:${i*90}ms`:""}">${badge}
+    <div class="pic">${c.img?`<img src="${c.img}" alt="">`:em}</div>
+    <h3>${esc(c.t)}${c.done?" ✅":""}</h3><p>${esc(c.note||"")}</p>
+    <div class="meta"><span>أضافها ${esc(c.by)}</span><span>${c.cost?(+c.cost).toLocaleString("ar-EG")+" ج":""}</span></div>
+    <div class="react">${rx}</div>
+    <div class="acts"><button class="mini" data-cm="${c.id}">💬 ${c.cm.length}</button><button class="mini" data-done="${c.id}">${c.done?"رجّعها":"اتحققت ✅"}</button><button class="mini" data-del="${c.id}">مسح</button></div>${cms}</article>`}).join("")
+    :`<div class="empty">${all.length?"مفيش حاجة في الفلتر ده":"اللوحة فاضية هنا، ضيفوا أول فكرة 💭"}</div>`;
+  first=false;pop=null;
+  $("wd").value=st.wd;
+  if(st.wd){const d=Math.ceil((new Date(st.wd)-new Date().setHours(0,0,0,0))/864e5);
+    $("cd").innerHTML=d>0?`فاضل <b>${d.toLocaleString("ar-EG")}</b> يوم على الفرح`:d===0?"النهاردة الفرح 💍":"مبروك يا عرسان ♥"}
+  else $("cd").textContent="يوم الفرح:";
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button");if(!t)return;const d=t.dataset;
+  if(d.who)st.who=d.who;
+  else if(d.sec){st.sec=d.sec;first=true}
+  else if(d.fil){st.fil=d.fil;first=true}
+  else if(d.r){const c=st.cards.find(x=>x.id==d.r),was=agreed(c);
+    if(c.r[d.n]===d.k)delete c.r[d.n];else{c.r[d.n]=d.k;pop={id:+d.r,n:d.n,k:d.k}}
+    if(!was&&agreed(c))burst(e.clientX,e.clientY)}
+  else if(d.cm){open[d.cm]=!open[d.cm]}
+  else if(d.done){const c=st.cards.find(x=>x.id==d.done);c.done=!c.done;if(c.done)burst(e.clientX,e.clientY)}
+  else if(d.del){if(!confirm("تمسحوا الفكرة دي؟"))return;st.cards=st.cards.filter(x=>x.id!=d.del)}
+  else return;
+  persist();render();
+});
+document.addEventListener("submit",e=>{
+  const id=e.target.dataset.cf;if(!id)return;e.preventDefault();
+  const v=e.target.querySelector("input").value.trim();if(!v)return;
+  st.cards.find(x=>x.id==id).cm.push({by:st.who,t:v});persist();render();
+});
+$("wd").onchange=e=>{st.wd=e.target.value;persist();render()};
+$("addBtn").onclick=()=>{["f_title","f_note","f_cost","f_img"].forEach(i=>$(i).value="");$("dlg").showModal()};
+$("cancel").onclick=()=>$("dlg").close();
+function shrink(file,max,q){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,max/im.width),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",q))};im.onerror=()=>res("");im.src=r.result};r.readAsDataURL(file)})}
+$("save").onclick=async()=>{
+  const t=$("f_title").value.trim();if(!t){$("f_title").focus();return}
+  const f=$("f_img").files[0],img=f?await shrink(f,640,.72):"";
+  st.cards.unshift({id:Date.now(),s:st.sec,t,note:$("f_note").value.trim(),by:st.who,cost:+$("f_cost").value||0,r:{[st.who]:"love"},cm:[],img});
+  persist();$("dlg").close();first=true;render();
+};
+$("bgBtn").onclick=()=>$("bgFile").click();
+$("bgFile").onchange=async e=>{const f=e.target.files[0];if(!f)return;bgImg=await shrink(f,1400,.76);
+  try{localStorage.setItem("dreambg",bgImg)}catch(x){alert("الصورة كبيرة شوية، جرّبوا صورة أصغر")}setBg()};
+$("bgOff").onclick=()=>{bgImg="";try{localStorage.removeItem("dreambg")}catch(x){}setBg()};
+setBg();render();
+</script>
+</body>
+</html>
