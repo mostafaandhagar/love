@@ -105,8 +105,13 @@
           <input id="memoryFiles" type="file" accept="image/*,video/*" multiple required />
           <span class="upload-box" id="uploadBox">اضغطوا هنا لاختيار الملفات <small>ينفع تختاروا أكتر من صورة أو فيديو.</small></span>
         </label>
+        <section class="upload-progress" id="uploadProgress" hidden aria-live="polite" aria-label="تقدم رفع الملفات">
+          <div class="upload-progress-heading"><span id="uploadStatus">جاهز للرفع</span><b id="uploadTotalPercent">0%</b></div>
+          <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="uploadStatus"><span id="uploadTotalBar"></span></div>
+          <ul class="upload-file-list" id="uploadFileList"></ul>
+        </section>
         <p class="form-error" id="memoryError"></p>
-        <button class="primary-button" type="submit">علّق الذكرى على الحيطة</button>
+        <button class="primary-button" id="memorySubmit" type="submit">علّق الذكرى على الحيطة</button>
       </form>
     </dialog>
 
