@@ -10,44 +10,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <section class="apology-gate" id="apologyGate" aria-live="polite">
-      <div class="apology-panel">
-        <div class="apology-step" data-apology-step="notice">
-          <span class="apology-heart">♥</span>
-          <h1>هديتك وصلتك؟</h1>
-          <div class="apology-actions"><button class="apology-button" id="giftArrived" type="button">اه استلمتها</button><button class="apology-button apology-button-soft" id="giftNotArrived" type="button">لا</button></div>
-        </div>
-        <div class="apology-step" data-apology-step="liar" hidden>
-          <h1>كدااابة انا لسة مسلمهالك ب ايدي</h1>
-          <button class="apology-button" id="giftActuallyArrived" type="button">اه استلمتها</button>
-        </div>
-        <div class="apology-step apology-letter" data-apology-step="letter" hidden>
-          <p>اول مرة اعتذر لحد من حاجة انا شايف اني مش غلطان فيها بس انتي بالذات مبيهونش عليا زعلك لاي سبب حتى او انا مش غلطان<br><br>ف اتمنى اكون قدرت اصالحك وتكوني دلوقتي مش زعلانة وان شاء الله ربنا يقدرني بعد كدة واخليكي دايماً مبسوطة ومتكونيش زعلانة ولا مني ولا من غيري<br><br>بس عامةً كل مرة هتزعلي فيها من حاجة هتلاقيني جنبك ع طول عشان احاول افرحك♥️<br><br>مبعرفش اكتب كلام طبطبة وحاجات من دي عشان انا اول مرة اتحط ف الموقف ده محدش قبل كدة كان قريب لقلبي للدرجة اللي هاجر قريبة منها انتي ف فترة صغيرة بقيتي دلوقتي احلى حاجة ف حياتي واحلى من اي حاجة عدت ع حياتي او هتعدي ف المستقبل وان شاء الله تفضل معايا ع طول لإن انا كدة كدة هخطبك حتى لو مش موافقة♥️</p>
-          <span>— مصطفى ♥</span>
-          <button class="apology-button" id="replyToLetter" type="button">ردي ع الرسالة</button>
-        </div>
-        <div class="apology-step" data-apology-step="reply" hidden>
-          <h1>ردك يهمني</h1>
-          <textarea id="apologyReply" placeholder="اكتبي ردك هنا..."></textarea>
-          <p class="apology-error" id="replyError"></p>
-          <button class="apology-button" id="sendReply" type="button">إرسال</button>
-        </div>
-        <div class="apology-step" data-apology-step="sign" hidden>
-          <h1>امضي هنا بالعربي لو خلاص مش زعلانة</h1>
-          <input id="apologySignature" type="password" autocomplete="off" placeholder="اكتبي كلمة السر" />
-          <p class="apology-error" id="signatureError"></p>
-          <button class="apology-button" id="confirmNotAngry" type="button">خلاص مش زعلانة</button>
-        </div>
-        <div class="apology-step" data-apology-step="done" hidden>
-          <span class="apology-heart">♥</span>
-          <h1>الرسالة دلوقتي وصلت لمصطفى</h1>
-          <p class="saved-gifts">ارتبطي بالولا بقى هتلاقي حد يحبك كدة فين</p>
-        </div>
-      </div>
-    </section>
     <button class="reply-inbox-fab" id="replyInboxFab" type="button" hidden aria-label="افتح رسالة هجورة">✉<span>1</span></button>
-    <div class="ambient-glow glow-one"></div>
-    <div class="ambient-glow glow-two"></div>
     <header class="topbar">
       <a class="brand" href="#">هاجر <span>♥</span> مصطفى</a>
       <div class="header-actions">
@@ -118,6 +81,7 @@
     <dialog class="image-viewer" id="imageViewer" aria-label="عرض الصورة بالحجم الكامل">
       <button class="image-viewer-close" type="button" data-close="imageViewer" aria-label="إغلاق الصورة">×</button>
       <img id="imageViewerImage" alt="" />
+      <video id="imageViewerVideo" hidden controls playsinline preload="metadata"></video>
     </dialog>
 
     <dialog class="modal" id="identityModal">
