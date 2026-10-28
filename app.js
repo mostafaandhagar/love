@@ -61,17 +61,45 @@ function dateLabel(value) { return new Intl.DateTimeFormat('ar-EG', { day:'numer
 function escapeHtml(text) { const d=document.createElement('div'); d.textContent=text; return d.innerHTML; }
 function readFileAsDataUrl(file) { return new Promise((resolve,reject)=> { const reader=new FileReader(); reader.onload=()=>resolve(reader.result); reader.onerror=reject; reader.readAsDataURL(file); }); }
 function compressImage(file) { return new Promise((resolve,reject) => { const image = new Image(); const source = URL.createObjectURL(file); image.onload = () => { const maxEdge=1100; const scale=Math.min(1,maxEdge/Math.max(image.naturalWidth,image.naturalHeight)); const canvas=document.createElement('canvas'); canvas.width=Math.max(1,Math.round(image.naturalWidth*scale)); canvas.height=Math.max(1,Math.round(image.naturalHeight*scale)); const context=canvas.getContext('2d'); context.drawImage(image,0,0,canvas.width,canvas.height); URL.revokeObjectURL(source); resolve(canvas.toDataURL('image/jpeg',.74)); }; image.onerror=()=>{ URL.revokeObjectURL(source); reject(new Error('image-read-failed')); }; image.src=source; }); }
-async function uploadToCloudinary(file, type) {
+function updateUploadProgress(files, loadedByFile, states) {
+const totalBytes=files.reduce((sum,file)=>sum+file.size,0) || 1;
+const uploadedBytes=files.reduce((sum,file,index)=>sum+Math.min(file.size,loadedByFile[index] || 0),0);
+const percent=Math.min(100,Math.round((uploadedBytes/totalBytes)*100));
+document.querySelector('#uploadTotalPercent').textContent=`${percent}%`;
+const bar=document.querySelector('#uploadTotalBar'); bar.style.width=`${percent}%`; bar.closest('[role="progressbar"]').setAttribute('aria-valuenow',String(percent));
+files.forEach((file,index)=>{
+const row=document.querySelector(`#uploadFileList [data-file-index="${index}"]`); if (!row) return;
+const filePercent=Math.min(100,Math.round(((loadedByFile[index] || 0)/file.size)*100));
+row.className=`upload-file ${states[index] ? `is-${states[index]}` : ''}`;
+row.querySelector('.upload-file-state').textContent=states[index]==='success' ? 'تم الرفع' : states[index]==='error' ? 'فشل' : `${filePercent}%`;
+});
+}
+function prepareUploadProgress(files) {
+const list=document.querySelector('#uploadFileList');
+list.innerHTML=files.map((file,index)=>`<li class="upload-file" data-file-index="${index}"><span class="upload-file-name">${escapeHtml(file.name)}</span><span class="upload-file-state">0%</span></li>`).join('');
+document.querySelector('#uploadProgress').hidden=false;
+updateUploadProgress(files,[],[]);
+}
+function uploadToCloudinary(file, type, onProgress) {
 const formData=new FormData();
 formData.append('file',file);
 formData.append('upload_preset',CLOUDINARY_UPLOAD_PRESET);
 formData.append('folder','hagar-mostafa');
-const response=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${type}/upload`,{method:'POST',body:formData});
-const result=await response.json();
-if (!response.ok || !result.secure_url) throw new Error(result.error?.message || 'cloud-upload-failed');
-return result.secure_url;
+return new Promise((resolve,reject)=>{
+const request=new XMLHttpRequest();
+request.open('POST',`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${type}/upload`);
+request.upload.onprogress=event=>{ if (event.lengthComputable) onProgress(event.loaded,event.total); };
+request.onerror=()=>reject(new Error('cloud-upload-failed'));
+request.onabort=()=>reject(new Error('cloud-upload-aborted'));
+request.onload=()=>{
+let result; try { result=JSON.parse(request.responseText); } catch { reject(new Error('cloud-upload-invalid-response')); return; }
+if (request.status < 200 || request.status >= 300 || !result.secure_url) { reject(new Error(result.error?.message || 'cloud-upload-failed')); return; }
+onProgress(file.size); resolve(result.secure_url);
+};
+request.send(formData);
+});
 }
-async function fileToItem(file) { const type=file.type.startsWith('video/')?'video':'image'; const data=await uploadToCloudinary(file,type); return {type,data,name:file.name.replace(/\.[^/.]+$/, '').slice(0,28)}; }
+async function fileToItem(file, onProgress=()=>{}) { const type=file.type.startsWith('video/')?'video':'image'; const data=await uploadToCloudinary(file,type,onProgress); return {type,data,name:file.name.replace(/\.[^/.]+$/, '').slice(0,28)}; }
 
 // Temporary reconciliation page: automatically disappears after 13 September 2026, Cairo time.
 const APOLOGY_ENDS_AT = new Date('2026-09-13T23:59:59+03:00').getTime();
@@ -251,12 +279,13 @@ error.textContent=sendError?.code==='permission-denied' || sendError?.code?.star
 document.querySelector('#readMessagesChoice').addEventListener('click', () => { messagesModal.close(); const messages=readMessages(); const received=messages.filter(message => message.to===currentPerson).sort((a,b)=>b.createdAt.localeCompare(a.createdAt)); messages.forEach(message => { if (message.to===currentPerson) message.read=true; }); saveMessages(messages); document.querySelector('#inboxSubheading').textContent = received.length ? `رسايل متبعتة لـ ${personLabel(currentPerson)}.` : `لسه مفيش رسايل — ${personLabel(otherPerson())} يقدر يبعتلك رسالة.`; document.querySelector('#inboxList').innerHTML = received.length ? received.map(message => `<article class="message-note"><small>من ${personLabel(message.from)} · ${new Intl.DateTimeFormat('ar-EG',{dateStyle:'medium',timeStyle:'short'}).format(new Date(message.createdAt))}</small><p>${escapeHtml(message.text).replace(/\n/g,'<br>')}</p></article>`).join('') : '<p class="no-messages">صندوق الرسايل مستني أول كلمة حلوة. ♥</p>'; updateUnreadUI(); inboxModal.showModal(); });
 document.querySelector('#secretMessageChoice').addEventListener('click', () => { if (currentPerson !== 'Hagar') return; messagesModal.close(); document.querySelector('#secretPassword').value=''; document.querySelector('#secretPasswordError').textContent=''; secretPasswordModal.showModal(); });
 document.querySelector('#secretPasswordForm').addEventListener('submit', event => { event.preventDefault(); if (document.querySelector('#secretPassword').value !== 'mostafaloveshagar') { document.querySelector('#secretPasswordError').textContent='متحاوليش طالما أنا مقولتلكيش الباسوورد.'; return; } const defaultLetter='صباح العسل \nبما اني قولتلك ع الباسوورد يبقى اكيد قولتلك اني بحبك        .\nف بالمرة حابب احكيلك اني من اول لحظة كلمتك وانا مشدودلك اكتر من حاجة حصلتلي ف حياتي وفضلي اعجابي بيكي يزيد لحد اول بوم شوفتك ف الحقيقة لحظتها انبهرت جدا ان ممكن يكون في بنت بالجمال ده وبعد ما خرجنا وروحتك كنت ساعتها فعلا عرفت اني بحبك بجد رغم المدة القصيرة اللي عرفتك فيها بس ده اللي حصل محدش ليه ع قلبه سلطان بقى  '; const letter=defaultLetter; localStorage.setItem(SECRET_MESSAGE_STORAGE_KEY,letter); document.querySelector('#secretLetterContent').innerHTML=escapeHtml(letter).replace(/\n/g,'<br>'); const envelope=document.querySelector('#secretMessageModal .secret-envelope'); envelope.classList.remove('letter-ready'); secretPasswordModal.close(); secretMessageModal.showModal(); setTimeout(() => envelope.classList.add('letter-ready'),3000); });
-addButton.addEventListener('click', () => { document.querySelector('#memoryDate').value = new Date().toISOString().slice(0,10); document.querySelector('#uploadBox').innerHTML='اضغطوا هنا لاختيار الملفات <small>ينفع تختاروا أكتر من صورة أو فيديو.</small>'; memoryModal.showModal(); });
-document.querySelector('#memoryFiles').addEventListener('change', (event) => { const n=event.target.files.length; document.querySelector('#uploadBox').innerHTML = n ? `تم اختيار ${n} ملف ✨ <small>اضغطوا لو عايزين تغيّروهم.</small>` : 'اضغطوا هنا لاختيار الملفات <small>ينفع تختاروا أكتر من صورة أو فيديو.</small>'; });
+addButton.addEventListener('click', () => { document.querySelector('#memoryDate').value = new Date().toISOString().slice(0,10); document.querySelector('#uploadBox').innerHTML='اضغطوا هنا لاختيار الملفات <small>ينفع تختاروا أكتر من صورة أو فيديو.</small>'; document.querySelector('#uploadProgress').hidden=true; memoryModal.showModal(); });
+document.querySelector('#memoryFiles').addEventListener('change', (event) => { const n=event.target.files.length; document.querySelector('#uploadBox').innerHTML = n ? `تم اختيار ${n} ملف ✨ <small>اضغطوا لو عايزين تغيّروهم.</small>` : 'اضغطوا هنا لاختيار الملفات <small>ينفع تختاروا أكتر من صورة أو فيديو.</small>'; document.querySelector('#uploadProgress').hidden=true; });
 document.querySelector('#memoryForm').addEventListener('submit', async (event) => {
-event.preventDefault(); const date=document.querySelector('#memoryDate').value; const files=[...document.querySelector('#memoryFiles').files]; const error=document.querySelector('#memoryError'); error.textContent='';
+event.preventDefault(); const date=document.querySelector('#memoryDate').value; const files=[...document.querySelector('#memoryFiles').files]; const error=document.querySelector('#memoryError'); const submit=document.querySelector('#memorySubmit'); error.textContent='';
 if (!date || !files.length) { error.textContent='اختاروا التاريخ والملفات الأول.'; return; }
-try { const items = await Promise.all(files.map(fileToItem)); const all=readMemories(); const existing=all.find(group=>group.date===date); if(existing) existing.items.push(...items); else all.push({date,items}); await saveMemories(all); renderWall(); memoryModal.close(); event.target.reset(); } catch (saveError) { error.textContent=saveError?.code==='permission-denied' || saveError?.code?.startsWith('auth/') ? 'Firebase مانع الحفظ: فعّلوا Anonymous في Authentication وانشروا Rules بتاعة Firestore.' : saveError?.name==='QuotaExceededError' ? 'مساحة الحفظ على المتصفح قربت تتملي. جرّبوا صور أقل أو أصغر.' : 'حصلت مشكلة أثناء رفع أو حفظ الملفات. جرّبوا تاني.'; }
+prepareUploadProgress(files); document.querySelector('#uploadStatus').textContent='جاري رفع الملفات…'; submit.disabled=true; const originalButtonText=submit.textContent; submit.textContent='جاري الرفع…'; const loadedByFile=[]; const states=[];
+try { const items=[]; for (let index=0; index<files.length; index++) { const file=files[index]; states[index]='uploading'; updateUploadProgress(files,loadedByFile,states); items.push(await fileToItem(file,(loaded,total)=>{ loadedByFile[index]=file.size*(loaded/total); updateUploadProgress(files,loadedByFile,states); })); loadedByFile[index]=file.size; states[index]='success'; updateUploadProgress(files,loadedByFile,states); } document.querySelector('#uploadStatus').textContent='جاري حفظ الذكرى…'; const all=readMemories(); const existing=all.find(group=>group.date===date); if(existing) existing.items.push(...items); else all.push({date,items}); await saveMemories(all); document.querySelector('#uploadStatus').textContent='تم حفظ الذكرى بنجاح'; renderWall(); memoryModal.close(); event.target.reset(); } catch (saveError) { const failedIndex=states.findIndex(state=>state==='uploading'); if (failedIndex >= 0) states[failedIndex]='error'; updateUploadProgress(files,loadedByFile,states); document.querySelector('#uploadStatus').textContent='تعذّر إكمال الرفع'; error.textContent=saveError?.code==='permission-denied' || saveError?.code?.startsWith('auth/') ? 'Firebase مانع الحفظ: فعّلوا Anonymous في Authentication وانشروا Rules بتاعة Firestore.' : saveError?.name==='QuotaExceededError' ? 'مساحة الحفظ على المتصفح قربت تتملي. جرّبوا صور أقل أو أصغر.' : 'حصلت مشكلة أثناء رفع أو حفظ الملفات. جرّبوا تاني.'; } finally { submit.disabled=false; submit.textContent=originalButtonText; }
 });
 memoryWall.addEventListener('click', async (event) => {
 const button = event.target.closest('button'); if (!button || !loggedIn) return;
