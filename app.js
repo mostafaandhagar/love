@@ -25,7 +25,6 @@ const CLOUDINARY_UPLOAD_PRESET = 'hagar_mostafa_memories';
 
 const STORAGE_KEY = 'hagar-mostafa-memory-wall-v1';
 const MESSAGE_STORAGE_KEY = 'hagar-mostafa-private-messages-v1';
-const SECRET_MESSAGE_STORAGE_KEY = 'hagar-secret-message-v1';
 const loginButton = document.querySelector('#loginButton');
 const messagesButton = document.querySelector('#messagesButton');
 const addButton = document.querySelector('#addMemoryButton');
@@ -42,11 +41,11 @@ const secretPasswordModal = document.querySelector('#secretPasswordModal');
 const secretMessageModal = document.querySelector('#secretMessageModal');
 const imageViewer = document.querySelector('#imageViewer');
 const imageViewerImage = document.querySelector('#imageViewerImage');
+const imageViewerVideo = document.querySelector('#imageViewerVideo');
 let currentPerson = sessionStorage.getItem('memoryWallPerson') || '';
 let loggedIn = sessionStorage.getItem('memoryWallLoggedIn') === 'true' && Boolean(currentPerson);
 
-const demoMemories = [];
-function readMemories() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? demoMemories; } catch { return demoMemories; } }
+function readMemories() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? []; } catch { return []; } }
 function saveMemories(memories) {
 localStorage.setItem(STORAGE_KEY, JSON.stringify(memories));
 return firebaseSessionReady.then(() => setDoc(memoriesDocument, { groups:memories, updatedAt:Date.now() }, { merge:true }));
@@ -61,8 +60,6 @@ function personLabel(person) { return person === 'Hagar' ? 'هاجر' : 'مصط�
 function unreadCount() { return readMessages().filter(message => message.to === currentPerson && !message.read).length; }
 function dateLabel(value) { return new Intl.DateTimeFormat('ar-EG', { day:'numeric', month:'long', year:'numeric' }).format(new Date(`${value}T12:00:00`)); }
 function escapeHtml(text) { const d=document.createElement('div'); d.textContent=text; return d.innerHTML; }
-function readFileAsDataUrl(file) { return new Promise((resolve,reject)=> { const reader=new FileReader(); reader.onload=()=>resolve(reader.result); reader.onerror=reject; reader.readAsDataURL(file); }); }
-function compressImage(file) { return new Promise((resolve,reject) => { const image = new Image(); const source = URL.createObjectURL(file); image.onload = () => { const maxEdge=1100; const scale=Math.min(1,maxEdge/Math.max(image.naturalWidth,image.naturalHeight)); const canvas=document.createElement('canvas'); canvas.width=Math.max(1,Math.round(image.naturalWidth*scale)); canvas.height=Math.max(1,Math.round(image.naturalHeight*scale)); const context=canvas.getContext('2d'); context.drawImage(image,0,0,canvas.width,canvas.height); URL.revokeObjectURL(source); resolve(canvas.toDataURL('image/jpeg',.74)); }; image.onerror=()=>{ URL.revokeObjectURL(source); reject(new Error('image-read-failed')); }; image.src=source; }); }
 function updateUploadProgress(files, loadedByFile, states) {
 const totalBytes=files.reduce((sum,file)=>sum+file.size,0) || 1;
 const uploadedBytes=files.reduce((sum,file,index)=>sum+Math.min(file.size,loadedByFile[index] || 0),0);
@@ -103,11 +100,7 @@ request.send(formData);
 }
 async function fileToItem(file, onProgress=()=>{}) { const type=file.type.startsWith('video/')?'video':'image'; const data=await uploadToCloudinary(file,type,onProgress); return {type,data,name:file.name.replace(/\.[^/.]+$/, '').slice(0,28)}; }
 
-// Temporary reconciliation page: automatically disappears after 13 September 2026, Cairo time.
-const APOLOGY_ENDS_AT = new Date('2026-09-13T23:59:59+03:00').getTime();
-const apologyGate=document.querySelector('#apologyGate');
-function showApologyStep(name) { document.querySelectorAll('[data-apology-step]').forEach(step => step.hidden=step.dataset.apologyStep!==name); }
-function setupApologyGate() {
+function setupReplyInbox() {
 const replyInboxFab=document.querySelector('#replyInboxFab');
 const replyModal=document.querySelector('#apologyReplyModal');
   const replyPasswordModal=document.querySelector('#apologyReplyPasswordModal');
@@ -120,38 +113,27 @@ replyInboxFab.addEventListener('click',()=>{
   document.querySelector('#openApologyReply').addEventListener('click',()=>{
     if (document.querySelector('#apologyReplyPassword').value!=='هجورتي') { document.querySelector('#apologyReplyPasswordError').textContent='الباسوورد مش صح.'; return; }
 document.querySelector('#apologyReplyNote').textContent=savedReply || 'لسه مفيش رد محفوظ.';
-    replyModal.showModal();
     replyPasswordModal.close(); replyModal.showModal();
-});
-if (Date.now() >= APOLOGY_ENDS_AT) { apologyGate.hidden=true; return; }
-document.querySelector('#giftArrived').addEventListener('click',()=>showApologyStep('letter'));
-document.querySelector('#giftNotArrived').addEventListener('click',()=>showApologyStep('liar'));
-document.querySelector('#giftActuallyArrived').addEventListener('click',()=>showApologyStep('letter'));
-document.querySelector('#replyToLetter').addEventListener('click',()=>showApologyStep('reply'));
-document.querySelector('#sendReply').addEventListener('click',()=>{
-const reply=document.querySelector('#apologyReply').value.trim();
-if (!reply) { document.querySelector('#replyError').textContent='اكتبي ردك الأول.'; return; }
-document.querySelector('#replyError').textContent=''; showApologyStep('sign');
-});
-document.querySelector('#confirmNotAngry').addEventListener('click',async()=>{
-const signature=document.querySelector('#apologySignature').value.trim();
-const error=document.querySelector('#signatureError');
-if (signature!=='هاجر') { error.textContent='اكتبي الإمضاء صح يا هجورة.'; return; }
-error.textContent='جاري إرسال الرسالة…';
-try {
-await firebaseSessionReady;
-const reply=document.querySelector('#apologyReply').value.trim();
-await setDoc(apologyDocument,{ reply, signed:true, signedAt:Date.now() });
-error.textContent=''; showApologyStep('done');
-} catch { error.textContent='الرسالة ما اتحفظتش، جربي تاني.'; }
 });
 }
 function updateLoveCounter() { const firstDay = new Date(2026, 7, 15); const today = new Date(); firstDay.setHours(0,0,0,0); today.setHours(0,0,0,0); const days = Math.max(0, Math.floor((today - firstDay) / 86400000)); document.querySelector('#daysTogether').textContent = new Intl.NumberFormat('ar-EG').format(days); document.querySelector('#daysWord').textContent = days >= 3 && days <= 10 ? 'أيام' : 'يوم'; }
 function cloudinaryDisplayUrl(url) {
 return url.includes('res.cloudinary.com/') && url.includes('/upload/') ? url.replace('/upload/','/upload/f_auto,q_auto:good,c_fill,g_auto,w_520,h_520/') : url;
 }
+function cloudinaryViewerUrl(url) {
+return url.includes('res.cloudinary.com/') && url.includes('/upload/') ? url.replace('/upload/','/upload/f_auto,q_auto:good,c_limit,w_1000,h_1000/') : url;
+}
 
+const ROPE_WAVE = 118;
+const ropeY = x => 20 + Math.sin((x / ROPE_WAVE) * Math.PI * 2) * 5.4 + Math.sin((x / (ROPE_WAVE * 2)) * Math.PI * 2 + .7) * 1.8;
+const ropeLayouts = new WeakMap(); const pendingRopes = new Set(); let ropeFrame = 0;
+const ropeObserver = new ResizeObserver(entries => {
+entries.forEach(entry => pendingRopes.add(entry.target));
+if (ropeFrame) return;
+ropeFrame = requestAnimationFrame(() => { ropeFrame = 0; pendingRopes.forEach(target => ropeLayouts.get(target)?.()); pendingRopes.clear(); });
+});
 function renderWall() {
+ropeObserver.disconnect(); pendingRopes.clear();
 const memories = readMemories().sort((a,b) => b.date.localeCompare(a.date));
 memoryWall.innerHTML = '';
 emptyState.hidden = memories.length !== 0;
@@ -163,41 +145,30 @@ group.items.forEach((item, itemIndex) => {
 if (!item || typeof item.data !== 'string' || !item.data.trim()) return;
 const card = document.createElement('figure'); card.className='memory'; card.style.setProperty('--rotation', `${[-3,2,-1.5,3,-2,1][itemIndex % 6]}deg`);
 const safeName = escapeHtml(item.name || 'ذكرى جميلة'); const displayUrl=cloudinaryDisplayUrl(item.data);
-card.innerHTML = `${loggedIn ? `<div class="memory-controls"><button type="button" class="replace-media" data-date="${group.date}" data-index="${itemIndex}" title="غيّر الملف">↻</button><button type="button" class="delete-media" data-date="${group.date}" data-index="${itemIndex}" title="امسح الملف">×</button></div>` : ''}<div class="media-wrap">${item.type === 'video' ? `<video src="${item.data}" autoplay muted loop playsinline preload="metadata" disablepictureinpicture></video>` : `<img class="memory-image" src="${displayUrl}" data-full-src="${item.data}" alt="${safeName}" loading="lazy" decoding="async" width="520" height="520" role="button" tabindex="0" aria-label="افتح الصورة بالحجم الكامل">`}</div>`;
+card.innerHTML = `${loggedIn ? `<div class="memory-controls"><button type="button" class="replace-media" data-date="${group.date}" data-index="${itemIndex}" title="غيّر الملف">↻</button><button type="button" class="delete-media" data-date="${group.date}" data-index="${itemIndex}" title="امسح الملف">×</button></div>` : ''}<div class="media-wrap">${item.type === 'video' ? `<video class="memory-video" src="${item.data}" data-full-src="${item.data}" autoplay muted loop playsinline preload="metadata" disablepictureinpicture role="button" tabindex="0" aria-label="افتح الفيديو بالحجم الكبير"></video>` : `<img class="memory-image" src="${displayUrl}" data-full-src="${item.data}" alt="${safeName}" loading="lazy" decoding="async" width="520" height="520" role="button" tabindex="0" aria-label="افتح الصورة بالحجم الكامل">`}</div>`;
 clips.append(card);
 });
 const rope = row.querySelector('.rope');
+const ropeWidthNow = () => Math.max(clips.scrollWidth, clips.clientWidth);
 const buildContinuousRope = () => {
-const ropeWidth = Math.max(clips.scrollWidth, clips.clientWidth);
-const bulbCount = Math.max(5,Math.ceil(ropeWidth/165)); const waveSize=118; let pathData='M 0 20';
-for (let x=5; x<=ropeWidth; x+=5) { const y=20+Math.sin((x/waveSize)*Math.PI*2)*5.4+Math.sin((x/(waveSize*2))*Math.PI*2+.7)*1.8; pathData+=` L ${x} ${y}`; }
-const lights=Array.from({length:bulbCount},(_,index)=>`<span class="light-cast"></span><span class="bulb"></span>`).join('');
+const ropeWidth = ropeWidthNow();
+const bulbCount = Math.max(5,Math.ceil(ropeWidth/165));
+let pathData='M 0 20';
+for (let x=5; x<=ropeWidth; x+=5) pathData+=` L ${x} ${ropeY(x)}`;
+const lights=Array.from({length:bulbCount},()=>`<span class="light-cast"></span><span class="bulb"></span>`).join('');
 rope.innerHTML=`<svg viewBox="0 0 ${ropeWidth} 45" preserveAspectRatio="xMinYMid meet" aria-hidden="true"><path d="${pathData}"/></svg>${lights}`;
-const path=rope.querySelector('path'); const totalLength=path.getTotalLength(); const bulbs=[...rope.querySelectorAll('.bulb')]; const casts=[...rope.querySelectorAll('.light-cast')];
+const bulbs=[...rope.querySelectorAll('.bulb')]; const casts=[...rope.querySelectorAll('.light-cast')];
 bulbs.forEach((bulb,index) => {
-const targetX=ropeWidth*((index+.5)/bulbs.length); let closest=path.getPointAtLength(0); let smallest=Infinity;
-for (let step=0; step<=420; step++) { const point=path.getPointAtLength(totalLength*step/420); const distance=Math.abs(point.x-targetX); if(distance<smallest) { smallest=distance; closest=point; } }
-const x=`${(closest.x/ropeWidth)*100}%`; const y=`${closest.y+6}px`; bulb.style.left=x; bulb.style.right='auto'; bulb.style.top=y; bulb.style.transform='translateX(-50%)'; casts[index].style.left=x; casts[index].style.right='auto'; casts[index].style.top=`${closest.y+15}px`;
-});
-};
-const positionBulbsOnRope = () => {
-if (!rope.querySelector('path')) return;
-const path=rope.querySelector('path'); const totalLength=path.getTotalLength(); const bulbs=[...rope.querySelectorAll('.bulb')]; const casts=[...rope.querySelectorAll('.light-cast')]; const ropeWidth=Math.max(clips.scrollWidth,clips.clientWidth);
-bulbs.forEach((bulb,index) => {
-const targetX=ropeWidth*((index+.5)/bulbs.length); let closest=path.getPointAtLength(0); let smallest=Infinity;
-for (let step=0; step<=420; step++) { const point=path.getPointAtLength(totalLength*step/420); const distance=Math.abs(point.x-targetX); if(distance<smallest) { smallest=distance; closest=point; } }
-const x=`${(closest.x/ropeWidth)*100}%`; bulb.style.left=x; bulb.style.top=`${closest.y+6}px`; casts[index].style.left=x; casts[index].style.top=`${closest.y+15}px`;
+const x=ropeWidth*((index+.5)/bulbs.length); const y=ropeY(x); const left=`${(x/ropeWidth)*100}%`;
+bulb.style.left=left; bulb.style.right='auto'; bulb.style.top=`${y+6}px`; bulb.style.transform='translateX(-50%)';
+casts[index].style.left=left; casts[index].style.right='auto'; casts[index].style.top=`${y+15}px`;
 });
 };
 const hangMemoriesOnRope = () => {
-const path=rope.querySelector('path'); if (!path) return;
-const totalLength=path.getTotalLength(); const ropeWidth=Math.max(clips.scrollWidth,clips.clientWidth);
-clips.querySelectorAll('.memory').forEach(card => {
-const targetX=card.offsetLeft+(card.offsetWidth/2); let closest=path.getPointAtLength(0); let smallest=Infinity;
-for (let step=0; step<=420; step++) { const point=path.getPointAtLength(totalLength*step/420); const distance=Math.abs(point.x-targetX); if(distance<smallest) { smallest=distance; closest=point; } }
-const desiredTop=rope.offsetTop+closest.y+20; const currentTop=clips.offsetTop+card.offsetTop;
-card.style.setProperty('--hang-offset',`${desiredTop-currentTop}px`);
-});
+const cards=[...clips.querySelectorAll('.memory')]; const ropeTop=rope.offsetTop; const clipsTop=clips.offsetTop;
+// Read every position first, then write: one layout pass instead of one per photo.
+const offsets=cards.map(card => ropeTop+ropeY(card.offsetLeft+(card.offsetWidth/2))+20-(clipsTop+card.offsetTop));
+cards.forEach((card,index) => card.style.setProperty('--hang-offset',`${offsets[index]}px`));
 };
 const syncRope = () => {
 row.style.setProperty('--rope-width', `${Math.max(clips.scrollWidth,clips.clientWidth)}px`);
@@ -206,43 +177,10 @@ row.style.setProperty('--rope-shift', `${-clips.scrollLeft}px`);
 rope.style.transform=`translateX(${-clips.scrollLeft}px) rotate(${row.style.getPropertyValue('--tilt') || '0deg'})`;
 };
 clips.addEventListener('scroll', syncRope, { passive:true });
-const makeInfiniteStrip = () => {
-const originalCards=[...clips.querySelectorAll('.memory')];
-if (!originalCards.length || clips.clientWidth < 20 || originalCards[0].offsetWidth < 10) return 0;
-let firstCopy;
-// Keep adding identical rounds until one complete round can leave the screen unseen.
-do {
-const copy=originalCards.map(card => card.cloneNode(true));
-if (!firstCopy) firstCopy=copy[0];
-copy.forEach(card => clips.append(card));
-} while (clips.scrollWidth < clips.clientWidth * 3);
-return firstCopy.offsetLeft - originalCards[0].offsetLeft;
-};
-const startInfiniteLoop = loopWidth => {
-if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || loopWidth < 3) return;
-const direction = groupIndex % 2 === 0 ? -1 : 1;
-let paused=false, lastTime=performance.now();
-clips.style.overflowX='scroll';
-clips.style.scrollBehavior='auto';
-clips.scrollLeft=direction < 0 ? loopWidth : 0;
-const move = now => {
-if (!row.isConnected) return;
-const elapsed=Math.min(40,now-lastTime); lastTime=now;
-if (!paused) {
-clips.scrollLeft += direction * elapsed * .04;
-if (direction > 0 && clips.scrollLeft >= loopWidth) clips.scrollLeft -= loopWidth;
-if (direction < 0 && clips.scrollLeft <= 0) clips.scrollLeft += loopWidth;
-}
-requestAnimationFrame(move);
-};
-clips.addEventListener('pointerdown', () => { paused=true; });
-const resume=() => { paused=false; lastTime=performance.now(); };
-clips.addEventListener('pointerup',resume); clips.addEventListener('pointercancel',resume);
-requestAnimationFrame(move);
-};
+const layoutRope = () => { syncRope(); buildContinuousRope(); hangMemoriesOnRope(); };
 memoryWall.append(row);
-// Manual only: the whole rope and its photos follow the user's swipe.
-requestAnimationFrame(() => { syncRope(); buildContinuousRope(); positionBulbsOnRope(); hangMemoriesOnRope(); });
+// Lays the rope out once the row has a real size, then again whenever its width changes (rotation, resize).
+ropeLayouts.set(clips, layoutRope); ropeObserver.observe(clips);
 });
 }
 function updateUnreadUI() { const count = loggedIn ? unreadCount() : 0; document.querySelector('#headerUnread').textContent = count; document.querySelector('#modalUnread').textContent = count; }
@@ -264,10 +202,11 @@ document.querySelectorAll('.identity-choice').forEach(button => button.addEventL
 messagesButton.addEventListener('click', () => { updateUnreadUI(); messagesModal.showModal(); });
 document.querySelector('#addMediaFromMessages').addEventListener('click', () => { messagesModal.close(); addButton.click(); });
 document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => document.querySelector(`#${button.dataset.close}`).close()));
-function openImageViewer(image) { imageViewerImage.src=image.dataset.fullSrc; imageViewerImage.alt=image.alt; imageViewer.showModal(); }
-memoryWall.addEventListener('click', event => { const image=event.target.closest('.memory-image'); if (image) openImageViewer(image); });
-memoryWall.addEventListener('keydown', event => { const image=event.target.closest('.memory-image'); if (image && (event.key==='Enter' || event.key===' ')) { event.preventDefault(); openImageViewer(image); } });
+function openMediaViewer(media) { const isVideo=media.classList.contains('memory-video'); imageViewerImage.hidden=isVideo; imageViewerVideo.hidden=!isVideo; if (isVideo) { imageViewerVideo.src=cloudinaryViewerUrl(media.dataset.fullSrc); imageViewerVideo.play().catch(()=>{}); } else { imageViewerImage.src=cloudinaryViewerUrl(media.dataset.fullSrc); imageViewerImage.alt=media.alt; } imageViewer.showModal(); }
+memoryWall.addEventListener('click', event => { const media=event.target.closest('.memory-image,.memory-video'); if (media) openMediaViewer(media); });
+memoryWall.addEventListener('keydown', event => { const media=event.target.closest('.memory-image,.memory-video'); if (media && (event.key==='Enter' || event.key===' ')) { event.preventDefault(); openMediaViewer(media); } });
 imageViewer.addEventListener('click', event => { if (event.target===imageViewer) imageViewer.close(); });
+imageViewer.addEventListener('close', () => { imageViewerVideo.pause(); imageViewerVideo.removeAttribute('src'); imageViewerVideo.load(); });
 document.querySelector('#writeMessageChoice').addEventListener('click', () => { messagesModal.close(); document.querySelector('#recipientLine').textContent = `الرسالة دي هتوصل لمصطفى بس.`; if (otherPerson()==='Hagar') document.querySelector('#recipientLine').textContent='الرسالة دي هتوصل لهاجر بس.'; document.querySelector('#messageText').value=''; document.querySelector('#messageError').textContent=''; composeModal.showModal(); });
 document.querySelector('#composeForm').addEventListener('submit', async event => {
 event.preventDefault();
@@ -287,7 +226,7 @@ error.textContent=sendError?.code==='permission-denied' || sendError?.code?.star
 });
 document.querySelector('#readMessagesChoice').addEventListener('click', () => { messagesModal.close(); const messages=readMessages(); const received=messages.filter(message => message.to===currentPerson).sort((a,b)=>b.createdAt.localeCompare(a.createdAt)); messages.forEach(message => { if (message.to===currentPerson) message.read=true; }); saveMessages(messages); document.querySelector('#inboxSubheading').textContent = received.length ? `رسايل متبعتة لـ ${personLabel(currentPerson)}.` : `لسه مفيش رسايل — ${personLabel(otherPerson())} يقدر يبعتلك رسالة.`; document.querySelector('#inboxList').innerHTML = received.length ? received.map(message => `<article class="message-note"><small>من ${personLabel(message.from)} · ${new Intl.DateTimeFormat('ar-EG',{dateStyle:'medium',timeStyle:'short'}).format(new Date(message.createdAt))}</small><p>${escapeHtml(message.text).replace(/\n/g,'<br>')}</p></article>`).join('') : '<p class="no-messages">صندوق الرسايل مستني أول كلمة حلوة. ♥</p>'; updateUnreadUI(); inboxModal.showModal(); });
 document.querySelector('#secretMessageChoice').addEventListener('click', () => { if (currentPerson !== 'Hagar') return; messagesModal.close(); document.querySelector('#secretPassword').value=''; document.querySelector('#secretPasswordError').textContent=''; secretPasswordModal.showModal(); });
-document.querySelector('#secretPasswordForm').addEventListener('submit', event => { event.preventDefault(); if (document.querySelector('#secretPassword').value !== 'mostafaloveshagar') { document.querySelector('#secretPasswordError').textContent='متحاوليش طالما أنا مقولتلكيش الباسوورد.'; return; } const defaultLetter='صباح العسل \nبما اني قولتلك ع الباسوورد يبقى اكيد قولتلك اني بحبك        .\nف بالمرة حابب احكيلك اني من اول لحظة كلمتك وانا مشدودلك اكتر من حاجة حصلتلي ف حياتي وفضلي اعجابي بيكي يزيد لحد اول بوم شوفتك ف الحقيقة لحظتها انبهرت جدا ان ممكن يكون في بنت بالجمال ده وبعد ما خرجنا وروحتك كنت ساعتها فعلا عرفت اني بحبك بجد رغم المدة القصيرة اللي عرفتك فيها بس ده اللي حصل محدش ليه ع قلبه سلطان بقى  '; const letter=defaultLetter; localStorage.setItem(SECRET_MESSAGE_STORAGE_KEY,letter); document.querySelector('#secretLetterContent').innerHTML=escapeHtml(letter).replace(/\n/g,'<br>'); const envelope=document.querySelector('#secretMessageModal .secret-envelope'); envelope.classList.remove('letter-ready'); secretPasswordModal.close(); secretMessageModal.showModal(); setTimeout(() => envelope.classList.add('letter-ready'),3000); });
+document.querySelector('#secretPasswordForm').addEventListener('submit', event => { event.preventDefault(); if (document.querySelector('#secretPassword').value !== 'mostafaloveshagar') { document.querySelector('#secretPasswordError').textContent='متحاوليش طالما أنا مقولتلكيش الباسوورد.'; return; } const defaultLetter='صباح العسل \nبما اني قولتلك ع الباسوورد يبقى اكيد قولتلك اني بحبك        .\nف بالمرة حابب احكيلك اني من اول لحظة كلمتك وانا مشدودلك اكتر من حاجة حصلتلي ف حياتي وفضلي اعجابي بيكي يزيد لحد اول بوم شوفتك ف الحقيقة لحظتها انبهرت جدا ان ممكن يكون في بنت بالجمال ده وبعد ما خرجنا وروحتك كنت ساعتها فعلا عرفت اني بحبك بجد رغم المدة القصيرة اللي عرفتك فيها بس ده اللي حصل محدش ليه ع قلبه سلطان بقى  '; const letter=defaultLetter; document.querySelector('#secretLetterContent').innerHTML=escapeHtml(letter).replace(/\n/g,'<br>'); const envelope=document.querySelector('#secretMessageModal .secret-envelope'); envelope.classList.remove('letter-ready'); secretPasswordModal.close(); secretMessageModal.showModal(); setTimeout(() => envelope.classList.add('letter-ready'),3000); });
 addButton.addEventListener('click', () => { document.querySelector('#memoryDate').value = new Date().toISOString().slice(0,10); document.querySelector('#uploadBox').innerHTML='اضغطوا هنا لاختيار الملفات <small>ينفع تختاروا أكتر من صورة أو فيديو.</small>'; document.querySelector('#uploadProgress').hidden=true; memoryModal.showModal(); });
 document.querySelector('#memoryFiles').addEventListener('change', (event) => { const n=event.target.files.length; document.querySelector('#uploadBox').innerHTML = n ? `تم اختيار ${n} ملف ✨ <small>اضغطوا لو عايزين تغيّروهم.</small>` : 'اضغطوا هنا لاختيار الملفات <small>ينفع تختاروا أكتر من صورة أو فيديو.</small>'; document.querySelector('#uploadProgress').hidden=true; });
 document.querySelector('#memoryForm').addEventListener('submit', async (event) => {
@@ -318,6 +257,6 @@ localStorage.setItem(MESSAGE_STORAGE_KEY,JSON.stringify(items));
 updateUnreadUI();
 }, error => console.warn('Could not read messages from Firebase:', error));
 
-setupApologyGate();
+setupReplyInbox();
 updateAuthUI(); renderWall();
 updateLoveCounter();
