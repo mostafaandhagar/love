@@ -92,70 +92,6 @@
   user-select: none;
 }
 
-.image-viewer {
-  width: min(76vw,560px);
-  height: min(70vh,560px);
-  margin: auto;
-  padding: 12px;
-  overflow: visible;
-  border: 0;
-  border-radius: 14px;
-  background: #fffaf7;
-  box-shadow: 0 18px 60px rgba(0,0,0,.48);
-}
-
-.image-viewer::backdrop {
-  background: rgba(25,14,24,.78);
-  backdrop-filter: blur(5px);
-}
-
-.image-viewer img,
-.image-viewer video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 7px;
-}
-
-.image-viewer-close {
-  position: absolute;
-  z-index: 1;
-  top: -16px;
-  left: -16px;
-  width: 36px;
-  height: 36px;
-  border: 0;
-  border-radius: 50%;
-  cursor: pointer;
-  color: #fff;
-  background: #b85c76;
-  box-shadow: 0 3px 12px rgba(0,0,0,.3);
-  font: 400 1.8rem/30px Arial,sans-serif;
-}
-
-@media(max-width:600px) {
-  .clips {
-    scroll-padding: 0 8px;
-  }
-
-  .clips .memory {
-    flex: 0 0 calc(50vw - 35px);
-    scroll-snap-align: center;
-  }
-
-  .image-viewer {
-    width: 78vw;
-    height: 58vh;
-    max-height: 430px;
-  }
-
-  .image-viewer-close {
-    top: -13px;
-    left: -7px;
-  }
-}
-
 @font-face {
   font-family: 'Arslan Wessam';
   src: url('assets/fonts/arslan_wessam_b.ttf') format('truetype');
@@ -2194,4 +2130,330 @@ body {
 #secretMessageModal .secret-envelope.letter-ready::after {
   opacity: 0 !important;
   visibility: hidden !important;
+}
+
+/* =====================================================================
+   v2 — bigger cards, loading states, rope arrows, and the new viewer
+   (appended last so it wins over the older rules above)
+   ===================================================================== */
+
+.add-memory { font-family: Tajawal, sans-serif; } /* Cairo was never loaded */
+
+/* ---- Wall cards: larger, 4:5 ---- */
+.clips .memory {
+  flex: 0 0 clamp(150px, 17vw, 232px);
+  width: clamp(150px, 17vw, 232px);
+  min-width: 0;
+  max-width: none;
+  padding: 9px 9px 11px;
+}
+
+@media(max-width:600px) {
+  .clips .memory {
+    flex-basis: min(46vw, 196px);
+    width: min(46vw, 196px);
+    min-width: 140px;
+  }
+}
+
+.media-wrap {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: #e4d6c6;
+}
+
+.media-wrap img,
+.media-wrap video {
+  transition: opacity .45s ease, filter .45s ease;
+}
+
+/* Photo fades in once it has loaded; until then a soft shimmer holds the space. */
+.media-wrap.is-loading {
+  background: linear-gradient(110deg, #e4d6c6 30%, #efe3d5 50%, #e4d6c6 70%) 0 0 / 200% 100%;
+  animation: mediaShimmer 1.3s linear infinite;
+}
+
+.media-wrap.is-loading img {
+  opacity: 0;
+}
+
+@keyframes mediaShimmer {
+  to { background-position: -200% 0; }
+}
+
+/* Lights-on warmth comes from the overlay only; a filter on every photo/video is expensive. */
+.lights-on .media-wrap img,
+.lights-on .media-wrap video {
+  filter: none;
+}
+
+.video-badge {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding-left: 2px;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(40, 22, 30, .55);
+  backdrop-filter: blur(3px);
+  font-size: .62rem;
+  pointer-events: none;
+}
+
+/* ---- Rope arrows (mouse users) + drag-to-scroll ---- */
+.rope-nav {
+  position: absolute;
+  z-index: 8;
+  top: calc(94px + (100% - 94px) * .45);
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0 0 4px;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #fff;
+  background: rgba(133, 93, 87, .84);
+  box-shadow: 0 4px 14px rgba(40, 22, 26, .32);
+  font: 400 1.9rem/1 Arial, sans-serif;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s, background .2s;
+}
+
+.rope-prev { left: 6px; }
+.rope-next { right: 6px; }
+
+.memory-row.can-prev .rope-prev,
+.memory-row.can-next .rope-next {
+  opacity: .94;
+  pointer-events: auto;
+}
+
+.rope-nav:hover { background: #b85c76; }
+.rope-nav:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+@media(hover:none) {
+  .rope-nav { display: none; }
+}
+
+.clips.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.clips.is-dragging .memory {
+  pointer-events: none;
+}
+
+/* ---- Viewer ---- */
+html.viewer-open { overflow: hidden; }
+
+.image-viewer {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  color: #fff;
+  background: rgba(20, 11, 21, calc(.94 - var(--drag-fade, 0) * .55));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.image-viewer[open] {
+  display: block;
+  animation: viewerIn .26s ease both;
+}
+
+.image-viewer::backdrop { background: transparent; }
+
+@keyframes viewerIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* The `hidden` attribute must beat the display rules below. */
+.image-viewer [hidden] { display: none !important; }
+
+.viewer-stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 60px 14px 92px;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.viewer-media {
+  display: grid;
+  place-items: center;
+  max-width: 100%;
+  max-height: 100%;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.viewer-media.is-switching {
+  opacity: 0;
+  transition: opacity .12s;
+}
+
+/* The frame is the photo's own box — no fixed square, no empty bars around it. */
+.image-viewer img,
+.image-viewer video {
+  display: block;
+  border-radius: 5px;
+  background: #1b1019;
+  box-shadow: 0 0 0 7px #fffaf7, 0 26px 70px rgba(0, 0, 0, .55);
+}
+
+.image-viewer img {
+  width: auto;
+  height: auto;
+  max-width: calc(100vw - 42px);
+  max-height: calc(100dvh - 176px);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.image-viewer video {
+  max-width: calc(100vw - 42px);
+  max-height: calc(100dvh - 176px);
+}
+
+.image-viewer.is-zoomed .viewer-nav { opacity: 0; pointer-events: none; }
+
+.image-viewer-close,
+.viewer-nav {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #fff;
+  background: rgba(255, 250, 247, .14);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-family: Arial, sans-serif;
+  line-height: 1;
+  transition: background .2s, opacity .2s;
+}
+
+.image-viewer-close {
+  top: max(14px, env(safe-area-inset-top));
+  left: 14px;
+  width: 46px;
+  height: 46px;
+  padding-bottom: 3px;
+  font-size: 2rem;
+  font-weight: 300;
+}
+
+.viewer-nav {
+  top: 50%;
+  width: 50px;
+  height: 50px;
+  padding-bottom: 5px;
+  transform: translateY(-50%);
+  font-size: 2.2rem;
+  font-weight: 300;
+}
+
+.viewer-prev { left: 14px; }
+.viewer-next { right: 14px; }
+
+.image-viewer-close:hover,
+.viewer-nav:hover { background: #b85c76; }
+
+.viewer-nav:disabled { opacity: .22; pointer-events: none; }
+
+.image-viewer-close:focus-visible,
+.viewer-nav:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+.viewer-caption {
+  position: absolute;
+  z-index: 4;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 18px calc(18px + env(safe-area-inset-bottom));
+  text-align: center;
+  pointer-events: none;
+  font-family: Tajawal, sans-serif;
+}
+
+.viewer-caption span {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.viewer-caption b {
+  color: rgba(255, 255, 255, .72);
+  font-size: .82rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+}
+
+.viewer-spinner {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  border: 3px solid rgba(255, 255, 255, .25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: viewerSpin .8s linear infinite;
+}
+
+@keyframes viewerSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media(max-width:600px) {
+  .viewer-stage { padding: 64px 10px 96px; }
+
+  .image-viewer img,
+  .image-viewer video {
+    max-width: calc(100vw - 34px);
+    max-height: calc(100dvh - 190px);
+  }
+
+  .viewer-nav {
+    width: 44px;
+    height: 44px;
+    font-size: 1.9rem;
+    background: rgba(20, 11, 21, .45);
+  }
+
+  .viewer-prev { left: 6px; }
+  .viewer-next { right: 6px; }
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .image-viewer[open],
+  .media-wrap.is-loading,
+  .viewer-spinner { animation-duration: .01ms; animation-iteration-count: 1; }
+
+  .media-wrap img,
+  .media-wrap video,
+  .viewer-media.is-switching { transition: none; }
 }
