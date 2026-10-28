@@ -19,7 +19,7 @@
           <span class="switch-label">الأنوار</span>
         </button>
         <a class="login-button" href="places.html">الليستة بتاعتنا ❤️</a>
-           <a class="login-button" href="photobooth.html">📸 الفوتوبوث</a>
+        <a class="login-button" href="photobooth.html">📸 الفوتوبوث</a>
         <button class="login-button" id="loginButton" type="button">دخول</button>
         <button class="messages-button" id="messagesButton" type="button" hidden>رسايلنا <span id="headerUnread">0</span></button>
       </div>
@@ -78,10 +78,18 @@
       </form>
     </dialog>
 
-    <dialog class="image-viewer" id="imageViewer" aria-label="عرض الصورة بالحجم الكامل">
-      <button class="image-viewer-close" type="button" data-close="imageViewer" aria-label="إغلاق الصورة">×</button>
-      <img id="imageViewerImage" alt="" />
-      <video id="imageViewerVideo" hidden controls playsinline preload="metadata"></video>
+    <dialog class="image-viewer" id="imageViewer" aria-label="عرض الصور والفيديوهات">
+      <div class="viewer-stage" id="viewerStage">
+        <div class="viewer-media" id="viewerMedia">
+          <img id="imageViewerImage" alt="" draggable="false" />
+          <video id="imageViewerVideo" hidden controls playsinline preload="metadata"></video>
+        </div>
+        <div class="viewer-spinner" id="viewerSpinner" hidden role="status" aria-label="جاري التحميل"></div>
+      </div>
+      <button class="image-viewer-close" type="button" data-close="imageViewer" aria-label="إغلاق">×</button>
+      <button class="viewer-nav viewer-prev" id="viewerPrev" type="button" aria-label="الصورة اللي قبلها">‹</button>
+      <button class="viewer-nav viewer-next" id="viewerNext" type="button" aria-label="الصورة اللي بعدها">›</button>
+      <footer class="viewer-caption"><span id="viewerDate"></span><b id="viewerCounter"></b></footer>
     </dialog>
 
     <dialog class="modal" id="identityModal">
@@ -127,7 +135,7 @@
         <button class="close-button" type="button" data-close="secretMessageModal" aria-label="إغلاق">×</button>
         <div class="secret-envelope" aria-hidden="true">
           <div class="envelope-back"></div>
-          <div class="letter-paper"><p id="secretLetterContent">صباح العسل <br>بما اني قولتلك ع الباسوورد يبقى اكيد قولتلك اني بحبك        .<br>ف بالمرة حابب احكيلك اني من اول لحظة كلمتك وانا مشدودلك اكتر من حاجة حصلتلي ف حياتي وفضلي اعجابي بيكي يزيد لحد اول بوم شوفتك ف الحقيقة لحظتها انبهرت جدا ان ممكن يكون في بنت بالجمال ده وبعد ما خرجنا وروحتك كنت ساعتها فعلا عرفت اني بحبك بجد رغم المدة القصيرة اللي عرفتك فيها بس ده اللي حصل محدش ليه ع قلبه سلطان بقى  </p><span>— مصطفى ♥</span></div>
+          <div class="letter-paper"><p id="secretLetterContent">صباح العسل <br>بما اني قولتلك ع الباسوورد يبقى اكيد قولتلك اني بحبك        .<br>ف بالمرة حابب احكيلك اني من اول لحظة كلمتك وانا مشدودلك اكتر من حاجة حصلتلي ف حياتي وفضلي اعجابي بيكي يزيد لحد اول يوم شوفتك ف الحقيقة لحظتها انبهرت جدا ان ممكن يكون في بنت بالجمال ده وبعد ما خرجنا وروحتك كنت ساعتها فعلا عرفت اني بحبك بجد رغم المدة القصيرة اللي عرفتك فيها بس ده اللي حصل محدش ليه ع قلبه سلطان بقى  </p><span>— مصطفى ♥</span></div>
           <div class="envelope-front"></div>
           <div class="envelope-flap"></div>
           <div class="wax-seal">♥</div>
