@@ -145,6 +145,9 @@ error.textContent=''; showApologyStep('done');
 });
 }
 function updateLoveCounter() { const firstDay = new Date(2026, 7, 15); const today = new Date(); firstDay.setHours(0,0,0,0); today.setHours(0,0,0,0); const days = Math.max(0, Math.floor((today - firstDay) / 86400000)); document.querySelector('#daysTogether').textContent = new Intl.NumberFormat('ar-EG').format(days); document.querySelector('#daysWord').textContent = days >= 3 && days <= 10 ? 'أيام' : 'يوم'; }
+function cloudinaryDisplayUrl(url) {
+return url.includes('res.cloudinary.com/') && url.includes('/upload/') ? url.replace('/upload/','/upload/f_auto,q_auto:good,c_fill,g_auto,w_520,h_520/') : url;
+}
 
 function renderWall() {
 const memories = readMemories().sort((a,b) => b.date.localeCompare(a.date));
@@ -157,8 +160,8 @@ const clips = row.querySelector('.clips');
 group.items.forEach((item, itemIndex) => {
 if (!item || typeof item.data !== 'string' || !item.data.trim()) return;
 const card = document.createElement('figure'); card.className='memory'; card.style.setProperty('--rotation', `${[-3,2,-1.5,3,-2,1][itemIndex % 6]}deg`);
-const safeName = escapeHtml(item.name || 'ذكرى جميلة');
-card.innerHTML = `${loggedIn ? `<div class="memory-controls"><button type="button" class="replace-media" data-date="${group.date}" data-index="${itemIndex}" title="غيّر الملف">↻</button><button type="button" class="delete-media" data-date="${group.date}" data-index="${itemIndex}" title="امسح الملف">×</button></div>` : ''}<div class="media-wrap">${item.type === 'video' ? `<video src="${item.data}" autoplay muted loop playsinline preload="metadata" disablepictureinpicture></video>` : `<img src="${item.data}" alt="${safeName}" loading="lazy">`}</div>`;
+const safeName = escapeHtml(item.name || 'ذكرى جميلة'); const displayUrl=cloudinaryDisplayUrl(item.data);
+card.innerHTML = `${loggedIn ? `<div class="memory-controls"><button type="button" class="replace-media" data-date="${group.date}" data-index="${itemIndex}" title="غيّر الملف">↻</button><button type="button" class="delete-media" data-date="${group.date}" data-index="${itemIndex}" title="امسح الملف">×</button></div>` : ''}<div class="media-wrap">${item.type === 'video' ? `<video src="${item.data}" autoplay muted loop playsinline preload="metadata" disablepictureinpicture></video>` : `<img src="${displayUrl}" alt="${safeName}" loading="lazy" decoding="async" width="520" height="520">`}</div>`;
 clips.append(card);
 });
 const rope = row.querySelector('.rope');
