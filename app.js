@@ -40,6 +40,8 @@ const composeModal = document.querySelector('#composeModal');
 const inboxModal = document.querySelector('#inboxModal');
 const secretPasswordModal = document.querySelector('#secretPasswordModal');
 const secretMessageModal = document.querySelector('#secretMessageModal');
+const imageViewer = document.querySelector('#imageViewer');
+const imageViewerImage = document.querySelector('#imageViewerImage');
 let currentPerson = sessionStorage.getItem('memoryWallPerson') || '';
 let loggedIn = sessionStorage.getItem('memoryWallLoggedIn') === 'true' && Boolean(currentPerson);
 
@@ -161,7 +163,7 @@ group.items.forEach((item, itemIndex) => {
 if (!item || typeof item.data !== 'string' || !item.data.trim()) return;
 const card = document.createElement('figure'); card.className='memory'; card.style.setProperty('--rotation', `${[-3,2,-1.5,3,-2,1][itemIndex % 6]}deg`);
 const safeName = escapeHtml(item.name || 'ذكرى جميلة'); const displayUrl=cloudinaryDisplayUrl(item.data);
-card.innerHTML = `${loggedIn ? `<div class="memory-controls"><button type="button" class="replace-media" data-date="${group.date}" data-index="${itemIndex}" title="غيّر الملف">↻</button><button type="button" class="delete-media" data-date="${group.date}" data-index="${itemIndex}" title="امسح الملف">×</button></div>` : ''}<div class="media-wrap">${item.type === 'video' ? `<video src="${item.data}" autoplay muted loop playsinline preload="metadata" disablepictureinpicture></video>` : `<img src="${displayUrl}" alt="${safeName}" loading="lazy" decoding="async" width="520" height="520">`}</div>`;
+card.innerHTML = `${loggedIn ? `<div class="memory-controls"><button type="button" class="replace-media" data-date="${group.date}" data-index="${itemIndex}" title="غيّر الملف">↻</button><button type="button" class="delete-media" data-date="${group.date}" data-index="${itemIndex}" title="امسح الملف">×</button></div>` : ''}<div class="media-wrap">${item.type === 'video' ? `<video src="${item.data}" autoplay muted loop playsinline preload="metadata" disablepictureinpicture></video>` : `<img class="memory-image" src="${displayUrl}" data-full-src="${item.data}" alt="${safeName}" loading="lazy" decoding="async" width="520" height="520" role="button" tabindex="0" aria-label="افتح الصورة بالحجم الكامل">`}</div>`;
 clips.append(card);
 });
 const rope = row.querySelector('.rope');
@@ -262,6 +264,10 @@ document.querySelectorAll('.identity-choice').forEach(button => button.addEventL
 messagesButton.addEventListener('click', () => { updateUnreadUI(); messagesModal.showModal(); });
 document.querySelector('#addMediaFromMessages').addEventListener('click', () => { messagesModal.close(); addButton.click(); });
 document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => document.querySelector(`#${button.dataset.close}`).close()));
+function openImageViewer(image) { imageViewerImage.src=image.dataset.fullSrc; imageViewerImage.alt=image.alt; imageViewer.showModal(); }
+memoryWall.addEventListener('click', event => { const image=event.target.closest('.memory-image'); if (image) openImageViewer(image); });
+memoryWall.addEventListener('keydown', event => { const image=event.target.closest('.memory-image'); if (image && (event.key==='Enter' || event.key===' ')) { event.preventDefault(); openImageViewer(image); } });
+imageViewer.addEventListener('click', event => { if (event.target===imageViewer) imageViewer.close(); });
 document.querySelector('#writeMessageChoice').addEventListener('click', () => { messagesModal.close(); document.querySelector('#recipientLine').textContent = `الرسالة دي هتوصل لمصطفى بس.`; if (otherPerson()==='Hagar') document.querySelector('#recipientLine').textContent='الرسالة دي هتوصل لهاجر بس.'; document.querySelector('#messageText').value=''; document.querySelector('#messageError').textContent=''; composeModal.showModal(); });
 document.querySelector('#composeForm').addEventListener('submit', async event => {
 event.preventDefault();
