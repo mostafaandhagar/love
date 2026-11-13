@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>حكاية مصطفى وهاجر</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Cairo:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#fff1f5;--cd:#fffafc;--tx:#4a2740;--mu:#8c6a82;--pk:#d9507f;--lv:#a47ae0;--ln:#f3c9d8;--ok:#2f8a5e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17121d;--cd:#241b2b;--tx:#fff8fb;--mu:#c9bbc9;--pk:#f29ab8;--lv:#c5a6f5;--ln:#4d3a52;--ok:#8fe0b2}}
+:root[data-theme="dark"]{--bg:#17121d;--cd:#241b2b;--tx:#fff8fb;--mu:#c9bbc9;--pk:#f29ab8;--lv:#c5a6f5;--ln:#4d3a52;--ok:#8fe0b2}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,var(--ln),var(--bg) 65%) var(--bg);color:var(--tx);font-family:Cairo,system-ui,"Segoe UI",sans-serif}
+#fl{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.fh{position:absolute;bottom:-30px;opacity:0;animation:up linear forwards}
+@keyframes up{10%{opacity:.45}100%{transform:translateY(-110vh) rotate(25deg);opacity:0}}
+.bt{position:fixed;pointer-events:none;animation:bt 1.1s ease-out forwards;font-size:20px}
+@keyframes bt{to{transform:translate(var(--dx),-90px);opacity:0}}
+main{position:relative;width:min(640px,100%);margin:auto;padding:18px 14px 40px}
+.top{text-align:center;color:var(--pk);font:700 22px "Aref Ruqaa",serif;margin:6px 0 16px}
+.cd{background:var(--cd);border:1px solid var(--ln);border-radius:26px;padding:26px 22px;box-shadow:0 16px 44px #d9507f22;animation:fd .5s ease}
+@keyframes fd{from{opacity:0;transform:translateY(8px)}}
+.hero{text-align:center;padding:40px 22px}.big{font-size:56px;line-height:1;animation:pl 1.6s ease-in-out infinite}
+@keyframes pl{50%{transform:scale(1.14)}}
+h1{font:700 clamp(32px,9vw,48px)/1.4 "Aref Ruqaa",serif;margin:12px 0;color:var(--pk)}
+h2{font-size:clamp(20px,5vw,26px);line-height:1.7;margin:0 0 18px;font-weight:800}
+p{line-height:1.9;color:var(--mu);margin:8px 0}
+button,.btn{font:inherit;cursor:pointer;border:0;border-radius:16px;padding:14px 18px;font-weight:800;transition:.15s;display:block;width:100%;text-align:center;text-decoration:none}
+button:active{transform:scale(.98)}button:focus-visible,textarea:focus-visible{outline:3px solid var(--lv);outline-offset:2px}
+.pr{background:linear-gradient(110deg,var(--pk),var(--lv));color:#fff;box-shadow:0 8px 20px #d9507f33;margin-top:12px}
+.sc{background:transparent;border:1px solid var(--ln);color:var(--tx);margin-top:10px}
+.meta{display:flex;justify-content:space-between;font-size:13px;color:var(--mu);margin-bottom:10px}
+.bar{height:8px;background:var(--ln);border-radius:9px;overflow:hidden;margin-bottom:22px}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--pk),var(--lv));transition:width .3s}
+.tag{display:inline-block;border:1px solid var(--ln);color:var(--pk);border-radius:30px;padding:5px 12px;font-size:12px;margin-bottom:14px}
+.ans{display:grid;gap:10px}
+.an{background:var(--bg);color:var(--tx);border:1px solid var(--ln);text-align:right;font-weight:600}
+.an:hover:not(:disabled){border-color:var(--pk)}.an.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,var(--bg))}.an.no{border-color:var(--lv)}
+.fb{min-height:28px;margin:14px 0 4px;line-height:1.7;font-weight:600}.fb.g{color:var(--ok)}.fb.b{color:var(--lv)}
+textarea{width:100%;min-height:120px;resize:vertical;border:1px solid var(--ln);border-radius:16px;background:var(--bg);color:var(--tx);padding:14px;font:inherit;line-height:1.8}
+.brk{text-align:center;padding:14px 0}.brk .big{font-size:44px}
+.letter{white-space:pre-line;background:var(--bg);border:1px dashed var(--pk);border-radius:18px;padding:20px;line-height:2.1;font-weight:600;margin:18px 0}
+.score{font:700 54px "Aref Ruqaa",serif;color:var(--pk)}
+.rc{text-align:right;font-size:14px;color:var(--mu);margin:14px 0;max-height:240px;overflow:auto;border-top:1px solid var(--ln);padding-top:10px}.rc b{color:var(--tx)}
+.hid{display:none!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="fl" aria-hidden="true"></div>
+<main>
+<div class="top">M ♡ H</div>
+
+<section class="cd hero" id="intro">
+<div class="big">💗</div>
+<h1>إنتِ فاكرة حكايتنا؟</h1>
+<p>يا هاجر، دي رحلة صغيرة بين أول مرة شفتك فيها، وأول خروجة، والتفاصيل اللي بقت بيتنا. فيها أسئلة ذكريات، وأسئلة ليكي إنتِ مفيهاش صح ولا غلط. وفي الآخر… في حاجة مستنياكي.</p>
+<button class="pr" id="start">ابدئي الحكاية</button>
+<button class="sc hid" id="resume">كمّلي من آخر مكان وقفتي فيه</button>
+</section>
+
+<section class="cd hid" id="game">
+<div class="meta"><span id="ch"></span><span id="ct"></span></div>
+<div class="bar"><div class="fill" id="fill"></div></div>
+<div class="tag" id="kind"></div>
+<h2 id="q"></h2>
+<div class="ans" id="choices"></div>
+<textarea id="tx" class="hid" placeholder="اكتبي اللي في قلبك…" aria-label="إجابتك"></textarea>
+<div class="fb" id="fb" aria-live="polite"></div>
+<button class="pr hid" id="next">كمّلي</button>
+<button class="sc hid" id="skip">تخطي السؤال ده</button>
+</section>
+
+<section class="cd hid" id="brk">
+<div class="brk"><div class="big">🌹</div><h1 id="bt"></h1><p id="bs"></p></div>
+<button class="pr" id="bn">كمّلي الحكاية</button>
+</section>
+
+<section class="cd hid" id="end" style="text-align:center">
+<div class="big">💌</div>
+<h1>وصلتي لآخر الفصل</h1>
+<div class="score" id="score"></div>
+<p id="res"></p>
+<div class="letter" id="letter"></div>
+<div class="rc" id="rc"></div>
+<a class="btn pr" id="wa" target="_blank" rel="noopener">ابعتي إجاباتك لمصطفى على واتساب</a>
+<button class="sc" id="cp">انسخي إجاباتك</button>
+<button class="sc" id="again">ابدئي الحكاية من الأول</button>
+</section>
+</main>
+
+<script>
+const PHONE="";/* رقم مصطفى بصيغة دولية بدون + (مثال 2010xxxxxxxx). لو فاضي واتساب هيخليها تختار الشخص */
+const LETTER="يا هاجر،\nمن أول لحظة شفتك فيها وأنا حاسس إن حاجة حلوة بتبدأ، وكل يوم بيعدي بيأكدلي إني اخترت صح.\nشكرًا إنك فاكرة، وشكرًا إنك بتكتبي، وشكرًا إنك إنتِ.\nالحكاية لسه في أولها، وأنا مستني أكتب معاكي كل فصل جاي.\nبحبك.\n— مصطفى";
+const CH=[
+{t:"الفصل الأول • أول الحكاية",q:[
+["أول مرة مصطفى شاف هاجر من بعيد، قال إيه؟","إيه الحلاوة دي","إزيك يا هاجر","منورة المكان"],
+["أول لقاء بينكم كان يوم كام؟","15 أغسطس 2026","15 سبتمبر 2026","28 سبتمبر 2026","15 أغسطس 2025"],
+["أول خروجة كانت فين؟","Primoo’s Pizza في سموحة","سان ستيفانو","جرين بلازا","بحري"],
+["مين اللي اختار المطعم؟","مصطفى","هاجر","اختارتوه سوا"],
+["هاجر طلبت إيه؟","Chicken Ranch","Seafood","Margherita","Pepperoni"],
+["ومصطفى طلب إيه؟","Seafood","Chicken Ranch","مكرونة","برجر"],
+["مين وصل الأول واستنى التاني؟","مصطفى","هاجر","وصلتوا سوا"],
+["بعد البيتزا، هاجر اقترحت تشربوا إيه؟","عصير قصب","قهوة","مانجو","شاي"],
+["شربتوا القصب فين؟","عند دوران سموحة","ستانلي","بحري","سان ستيفانو"],
+["مين دفع حساب البيتزا؟","مصطفى","هاجر","كل واحد دفع لنفسه"],
+["ومين دفع حساب القصب؟","هاجر","مصطفى","كل واحد دفع لنفسه"],
+["مين بعت أول رسالة بعد الخروجة؟","مصطفى","هاجر","مش فاكرين"]],
+o:["إيه أكتر تفصيلة صغيرة بتفتكريها من أول خروجة؟","إيه أكتر ذكرى من يوم 15 أغسطس بتحبيها؟","كنتِ حاسة بإيه أول ما شفتي مصطفى؟"],
+b:["أول فصل خلص","وأنا لسه فاكر ضحكتك يومها، وإزاي الدنيا كلها كانت أهدى وأحلى."]},
+{t:"الفصل الثاني • تفاصيلنا",q:[
+["أول هدية مصطفى جابهالها كانت إيه؟","بوكيه شوكولاتة على شكل ورد وسلسلة باسمها","بوكيه ورد طبيعي وساعة","دبدوب ووردة","موبايل"],
+["لون الورد في البوكيه كان إيه؟","درجات البينك","أحمر","أبيض","أصفر"],
+["السلسلة كانت من إيه؟","ستانلس بلون فضي","ذهب","فضة","جلد"],
+["كان فيه مناسبة وقت الهدية؟","لأ، من غير مناسبة","عيد ميلادها","عيد الحب"],
+["رد فعل هاجر لما شافت الهدية؟","صرخت من المفاجأة","عيطت","ضحكت وسكتت"],
+["هاجر بتحب الورد أكتر ولا الشوكولاتة؟","الورد","الشوكولاتة","الاتنين بالتساوي"],
+["من أكلات هاجر المفضلة؟","بطاطس بيوريه ومكرونة","سمك ورز","كشري وفول"],
+["مشروب هاجر المفضل؟","آيس سبانش لاتيه","عصير قصب بس","ليمون بالنعناع"],
+["هاجر بتخاف من إيه؟","الصراصير","القطط","الضلمة"],
+["ألوان هاجر المفضلة؟","درجات البينك والبنفسجي","الأزرق والأخضر","الأسود والرمادي"],
+["هاجر بتحب أفلام إيه؟","الرعب","الأكشن","الوثائقي"],
+["ومع إنها بتحب الرعب، بيحصلها إيه وهي بتتفرج؟","بتتخض","بتنام","بتضحك طول الفيلم"],
+["نفسها تزور بلد إيه مع مصطفى؟","سويسرا","إيطاليا","اليابان","إسبانيا"],
+["هاجر بتنادي مصطفى بإيه؟","قلبي وروحي وعيوني","كابتن","باشا"],
+["ومصطفى بينادي هاجر بإيه؟","يهجورتي ويمزتي","قمري وبس","يا مدام"]],
+o:["إيه أكتر حاجة بتحبيها في مصطفى؟","إيه أكتر موقف بسيط منه بيفرحك؟","إيه أكتر وقت بتحسي فيه إنك قريبة منه؟","لو هتختاري أغنية ليكم، تكون إيه؟","إيه أكتر مكان بتحبي تقعدوا فيه سوا؟"],
+b:["التفاصيل الصغيرة","هي اللي بتعمل الحكاية الكبيرة. وإنتِ أجمل تفصيلة فيها."]},
+{t:"الفصل الثالث • اللي جاي أحلى",q:[
+["حلم هاجر مع مصطفى إيه؟","يسافروا ويكون ليهم بيت وحياة سعيدة","يفتحوا مطعم","يشتغلوا في نفس المكان"],
+["لما هاجر بتكون مبسوطة، بتعمل إيه كتير؟","ترغي","تسكت","تنام"],
+["إيه أكتر حاجة هاجر بتحبها في خروجاتكم؟","الكلام سوا","التسوق","الأكل بس"]],
+o:["إيه أول حاجة نفسك تعمليها لما تسافروا سوا؟","إيه حاجة نفسك تحققوها سوا في أول سنة؟","إيه مكان تاني نفسك تزوريه معاه غير سويسرا؟","لو هتسمّي فيلم بيحكي قصتكم، هتسميه إيه؟","لو هتخططي لمفاجأة لمصطفى، هتكون إيه؟","إيه حاجة نفسك مصطفى يفهمها عنك من غير شرح؟","إيه وعد صغير تحبي توعديه بيه؟","لو هتبعتي له رسالة من بعد 10 سنين، هتقولي إيه؟"]}];
+const OK=["صح! 💗","إجابة مظبوطة ✨","فاكرة التفاصيل بجد 🌷","تحفة! كمّلي 💕","ذاكرتك حلوة أوي 🌸","بالظبط كده 🥰","الله عليكي، صح 💗","ولا نسيتي حاجة 😍","مظبوط يا قمر ✨","كده تتحسب 💫","يا سلام على الذاكرة 🌹","صح وزيادة 💞"];
+let okBag=[];const okMsg=()=>{if(!okBag.length)okBag=shuffle(OK);return okBag.pop()};
+function weave(q,o){const r=[],st=Math.max(1,Math.floor(q.length/(o.length+1)));let j=0;q.forEach((x,i)=>{r.push({k:"q",q:x[0],c:x[1],a:x.slice(1)});if((i+1)%st===0&&j<o.length)r.push({k:"o",q:o[j++]})});while(j<o.length)r.push({k:"o",q:o[j++]});return r}
+const seq=[];CH.forEach((c,n)=>{weave(c.q,c.o).forEach(x=>{x.ch=c.t;seq.push(x)});if(c.b)seq.push({k:"b",t:c.b[0],s:c.b[1],ch:c.t})});
+const NQ=seq.filter(x=>x.k==="q").length,N=seq.length;
+const $=i=>document.getElementById(i),KEY="hk_v2";
+let S={i:0,s:0,a:{}},done=false;
+try{const v=JSON.parse(localStorage.getItem(KEY));if(v&&v.i>0&&v.i<N)S=v}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const show=id=>["intro","game","brk","end"].forEach(x=>$(x).classList.toggle("hid",x!==id));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function burst(el){const r=el.getBoundingClientRect();for(let k=0;k<7;k++){const s=document.createElement("span");s.className="bt";s.textContent="💗";s.style.cssText="left:"+(r.left+r.width/2)+"px;top:"+r.top+"px;--dx:"+((Math.random()-.5)*170)+"px";document.body.appendChild(s);setTimeout(()=>s.remove(),1200)}}
+function render(){
+ if(S.i>=N)return finish();
+ const it=seq[S.i];done=false;
+ if(it.k==="b"){$("bt").textContent=it.t;$("bs").innerHTML="";$("bs").textContent=it.s+" ("+S.s+" من "+NQ+" لحد دلوقتي)";show("brk");return}
+ show("game");
+ $("ch").textContent=it.ch;$("ct").textContent=(S.i+1)+" / "+N;$("fill").style.width=(S.i/N*100)+"%";
+ $("q").textContent=it.q;$("fb").textContent="";$("fb").className="fb";
+ $("choices").innerHTML="";$("next").classList.add("hid");$("skip").classList.add("hid");$("tx").classList.add("hid");
+ if(it.k==="q"){
+  $("kind").textContent="اختبري ذاكرتك";
+  shuffle(it.a).forEach(t=>{const b=document.createElement("button");b.className="an";b.textContent=t;b.onclick=()=>pick(b,t,it);$("choices").appendChild(b)});
+ }else{
+  $("kind").textContent="سؤال ليكي إنتِ، مفيش فيه صح ولا غلط";
+  $("tx").classList.remove("hid");$("tx").value=S.a[S.i]||"";
+  $("next").textContent="احفظي وكمّلي";$("next").classList.remove("hid");$("skip").classList.remove("hid");
+ }
+}
+function pick(b,t,it){
+ if(done)return;done=true;
+ const bs=[...$("choices").children];bs.forEach(x=>{x.disabled=true;if(x.textContent===it.c)x.classList.add("ok")});
+ if(t===it.c){S.s++;$("fb").textContent=okMsg();$("fb").classList.add("g");burst(b)}
+ else{b.classList.add("no");$("fb").textContent="قريبة! الإجابة اللي في الحكاية: "+it.c+" 🌸";$("fb").classList.add("b")}
+ $("next").textContent="كمّلي";$("next").classList.remove("hid");
+}
+function go(){const it=seq[S.i];if(it&&it.k==="o"){const v=$("tx").value.trim();if(v)S.a[S.i]=v;else delete S.a[S.i]}S.i++;save();render()}
+$("next").onclick=go;$("skip").onclick=()=>{$("tx").value="";go()};$("bn").onclick=()=>{S.i++;save();render()};
+function report(){let m="إجابات هاجر في حكاية مصطفى وهاجر 💗\nالنتيجة: "+S.s+" من "+NQ+"\n";Object.keys(S.a).forEach(k=>{m+="\n• "+seq[k].q+"\n  "+S.a[k]+"\n"});return m}
+function finish(){
+ show("end");$("fill").style.width="100%";save();
+ $("score").textContent=S.s+" / "+NQ;
+ $("res").textContent=S.s>=NQ*.75?"ذاكرتك قوية جدًا، واضح إن الحكاية عايشة جواكي.":S.s>=NQ*.45?"فاكرة تفاصيل كتير، ولسه فيه ذكريات أكتر هنعملها.":"مش مهم تفتكري كل حاجة، المهم إننا هنكمل نعمل ذكريات جديدة.";
+ $("letter").textContent=LETTER;
+ const keys=Object.keys(S.a);
+ $("rc").innerHTML="";$("rc").classList.toggle("hid",!keys.length);
+ keys.forEach(k=>{const d=document.createElement("div");const b=document.createElement("b");b.textContent=seq[k].q;d.appendChild(b);d.appendChild(document.createElement("br"));d.appendChild(document.createTextNode(S.a[k]));d.style.marginBottom="10px";$("rc").appendChild(d)});
+ $("wa").href="https://wa.me/"+PHONE+"?text="+encodeURIComponent(report());
+}
+$("cp").onclick=()=>{const t=report(),ok=()=>{$("cp").textContent="اتنسخت 💗"};
+ if(navigator.clipboard)navigator.clipboard.writeText(t).then(ok).catch(fb);else fb();
+ function fb(){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");ok()}catch(e){}a.remove()}};
+$("start").onclick=()=>{S={i:0,s:0,a:{}};save();render()};
+$("resume").onclick=render;
+$("again").onclick=()=>{S={i:0,s:0,a:{}};save();$("cp").textContent="انسخي إجاباتك";render()};
+if(S.i>0)$("resume").classList.remove("hid");
+if(!matchMedia("(prefers-reduced-motion:reduce)").matches)setInterval(()=>{const s=document.createElement("span");s.className="fh";s.textContent=["💗","🌸","♡"][Math.floor(Math.random()*3)];s.style.cssText="left:"+Math.random()*100+"%;font-size:"+(14+Math.random()*16)+"px;animation-duration:"+(9+Math.random()*7)+"s";$("fl").appendChild(s);setTimeout(()=>s.remove(),16000)},1600);
+</script>
+</body>
+</html>
